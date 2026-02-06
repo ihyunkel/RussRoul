@@ -60,7 +60,7 @@ body::before {
 /* Screen Management */
 /* ===== SCREEN SYSTEM (FIXED) ===== */
 .screen {
-    position: fixed;
+    position: absolute;
     inset: 0;
     display: none;
     z-index: 1;
@@ -207,7 +207,7 @@ body::before {
 
 /* ===== GAME SCREEN ===== */
 #gameScreen {
-    position: relative;
+    position: absolute;
     z-index: 2;
     flex-direction: column;
 }
