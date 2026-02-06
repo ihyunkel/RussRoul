@@ -64,10 +64,12 @@ body::before {
     inset: 0;
     display: none;
     z-index: 1;
+    overflow-y: auto;
 }
 
 .screen.active {
     display: flex;
+    overflow-y: auto;
 }
 
 @keyframes fadeIn {
