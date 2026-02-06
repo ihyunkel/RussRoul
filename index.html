@@ -5,70 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>روليت روسية</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Login Screen -->
     <div id="loginScreen" class="screen active">
         <div class="login-container">
             <div class="revolver-logo">
-                <svg viewBox="0 0 100 100" class="rotating-chamber">
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="2"/>
-                    <circle cx="50" cy="20" r="4" fill="currentColor"/>
-                    <circle cx="76" cy="35" r="4" fill="currentColor"/>
-                    <circle cx="76" cy="65" r="4" fill="currentColor"/>
-                    <circle cx="50" cy="80" r="4" fill="currentColor"/>
-                    <circle cx="24" cy="65" r="4" fill="currentColor"/>
-                    <circle cx="24" cy="35" r="4" fill="currentColor"/>
-                    <circle cx="50" cy="50" r="8" fill="currentColor"/>
+                <svg class="rotating-chamber" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="3"/>
+                    <circle cx="50" cy="20" r="8" fill="currentColor"/>
+                    <circle cx="73" cy="35" r="8" fill="currentColor"/>
+                    <circle cx="73" cy="65" r="8" fill="currentColor"/>
+                    <circle cx="50" cy="80" r="8" fill="currentColor"/>
+                    <circle cx="27" cy="65" r="8" fill="currentColor"/>
+                    <circle cx="27" cy="35" r="8" fill="currentColor"/>
+                    <circle cx="50" cy="50" r="12" fill="currentColor"/>
                 </svg>
             </div>
-            <h1 class="game-title">الروليت الروسية</h1>
+            <h1 class="game-title">روليت روسية</h1>
             <p class="game-subtitle">المغامرة هي طريقك للفوز</p>
+            
             <button id="loginBtn" class="primary-btn">
                 <span class="btn-icon">🎮</span>
-                <span>تسجيل الدخول بحساب تويتش</span>
+                تسجيل الدخول عبر Twitch
             </button>
+            
             <div class="login-info">
                 <p>• يجب أن تكون ستريمر لبدء اللعبة</p>
                 <p>• المشاهدون يشاركون عبر الشات</p>
-                <p>• لا نحفظ أي بيانات - كل شيء محلي</p>
             </div>
         </div>
     </div>
 
-    <!-- Game Dashboard -->
+    <!-- Game Screen -->
     <div id="gameScreen" class="screen">
         <!-- Top Bar -->
         <div class="top-bar">
             <div class="channel-info">
                 <div class="live-indicator"></div>
-                <span id="channelName">جاري التحميل...</span>
+                <span id="channelName">Twitch Channel</span>
             </div>
-            <button id="logoutBtn" class="icon-btn">
-                <span>تسجيل الخروج</span>
-            </button>
+            <button id="logoutBtn" class="icon-btn">تسجيل الخروج</button>
         </div>
 
-        <!-- Main Game Area -->
         <div class="game-container">
             <!-- Left Panel -->
             <div class="left-panel">
                 <div class="tournament-status">
                     <h2>حالة البطولة</h2>
                     <div class="status-item">
-                        <span class="label">الجولة:</span>
-                        <span id="roundNumber" class="value">-</span>
+                        <span>الجولة:</span>
+                        <strong id="roundNumber">-</strong>
                     </div>
                     <div class="status-item">
-                        <span class="label">اللاعبون المتبقون:</span>
-                        <span id="remainingPlayers" class="value">0</span>
+                        <span>اللاعبون المتبقون:</span>
+                        <strong id="remainingPlayers">0</strong>
                     </div>
                     <div class="status-item">
-                        <span class="label">المباراة الحالية:</span>
-                        <span id="currentMatch" class="value">-</span>
+                        <span>المباراة الحالية:</span>
+                        <strong id="currentMatch">-</strong>
                     </div>
                 </div>
 
@@ -82,7 +77,7 @@
                             </button>
                             <button id="advancedModeBtn" class="mode-btn">
                                 <span class="mode-btn-icon">⚡</span>
-                                <span class="mode-btn-label">متقدم</span>
+                                <span class="mode-btn-label">مطور</span>
                             </button>
                             <button id="buckshotModeBtn" class="mode-btn">
                                 <span class="mode-btn-icon">💀</span>
@@ -104,276 +99,264 @@
                 </div>
 
                 <div class="players-list">
-                    <h3>اللاعبون المسجلون (<span id="playerCount">0</span>)</h3>
-                    <div id="playersList" class="scrollable-list"></div>
+                    <h3>اللاعبون (<span id="playerCount">0</span>)</h3>
+                    <div class="command-hint">
+                        <code>!دخول</code> للانضمام في الدردشة
+                    </div>
+                    <div id="playersList" class="scrollable-list">
+                        <!-- Players will be added here -->
+                    </div>
                 </div>
             </div>
 
             <!-- Center Arena -->
             <div class="center-arena">
+                <!-- Waiting State -->
                 <div id="waitingState" class="state-container active">
-                    <div class="waiting-icon">🎯</div>
-                    <h2>في انتظار اللاعبين</h2>
-                    <p>افتح التسجيل ليبدأ المشاهدون بالانضمام</p>
-                    <div class="command-hint">
-                        <code>!دخول</code> للانضمام في الدردشة
+                    <div class="waiting-content">
+                        <div class="waiting-icon">⏳</div>
+                        <h2>في انتظار اللاعبين</h2>
+                        <p>افتح التسجيل للسماح للمشاهدين بالانضمام</p>
                     </div>
                 </div>
 
+                <!-- Match State -->
                 <div id="matchState" class="state-container">
-                    <div class="versus-container">
-                        <!-- Player A -->
-                        <div class="player-side" id="playerAContainer">
-                            <div class="player-avatar">
-                                <div class="avatar-circle">
-                                    <img id="playerAAvatar" class="avatar-img" src="" alt="A" onerror="this.style.display='none'; document.getElementById('playerAInitial').style.display='block';">
-                                    <span id="playerAInitial" style="display: none;">A</span>
+                    <div class="match-layout">
+                        <!-- Left Info Panel -->
+                        <div class="side-info left-info">
+                            <div class="hint-section buckshot-hint" id="buckshotHint" style="display: none;">
+                                <h4>:Buckshot Mode</h4>
+                                <div class="hint-item">
+                                    <code>❤️❤️</code>
+                                    <span>قلبين لكل لاعب - اصابتين للموت</span>
+                                </div>
+                                <div class="hint-item">
+                                    <code>🎲</code>
+                                    <span>طلقات عشوائية (1-3 حية + فارغة)</span>
+                                </div>
+                                <div class="hint-item">
+                                    <code>!علاج</code>
+                                    <span>استعادة قلب واحد</span>
+                                </div>
+                                <div class="hint-item">
+                                    <code>!درع / !كشف / !تبديل</code>
+                                    <span>نفس القوى من الطور المطور</span>
                                 </div>
                             </div>
-                            <h3 id="playerAName" class="player-name">لاعب أ</h3>
-                            
-                            <!-- Hearts for Buckshot mode -->
-                            <div class="hearts-display" id="heartsA" style="display: none;">
-                                <span class="heart filled" id="heartA1">❤️</span>
-                                <span class="heart filled" id="heartA2">❤️</span>
-                            </div>
-                            
-                            <!-- Power-ups للطور المطور -->
-                            <div class="powerups-display" id="powerupsA" style="display: none;">
-                                <div class="powerup-item">
-                                    <span class="powerup-icon">🛡️</span>
-                                    <span id="shieldCountA">1</span>
-                                </div>
-                                <div class="powerup-item">
-                                    <span class="powerup-icon">🔄</span>
-                                    <span id="swapCountA">1</span>
-                                </div>
-                                <div class="powerup-item">
-                                    <span class="powerup-icon">👁️</span>
-                                    <span id="revealCountA">1</span>
-                                </div>
-                                <div class="powerup-item" id="healItemA" style="display: none;">
-                                    <span class="powerup-icon">💊</span>
-                                    <span id="healCountA">1</span>
-                                </div>
-                            </div>
-                            
-                            <div class="shield-status" id="shieldStatusA" style="display: none;">
-                                🛡️ محمي
-                            </div>
-                            
-                            <!-- Hidden chambers for compatibility -->
-                            <div id="chambersA" style="display: none;">
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                            </div>
-                            
-                            <div class="turn-indicator" id="turnA">دورك</div>
                         </div>
 
-                        <!-- Shared Revolver in Center -->
-                        <div class="vs-badge">
-                            <div class="shared-revolver">
-                                <!-- SVG Revolver Cylinder -->
-                                <div class="revolver-cylinder-container">
-                                    <svg class="revolver-cylinder" id="revolverCylinder" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                                        <!-- Outer circle -->
-                                        <circle cx="100" cy="100" r="80" fill="none" stroke="#e8e8ea" stroke-width="2" opacity="0.3"/>
-                                        
-                                        <!-- Center hub -->
-                                        <circle cx="100" cy="100" r="15" fill="none" stroke="#e8e8ea" stroke-width="3" opacity="0.5"/>
-                                        
-                                        <!-- 6 chambers evenly spaced -->
-                                        <g class="chambers-group">
-                                            <!-- Chamber 1 (top) -->
-                                            <circle class="cylinder-chamber" data-chamber="0" cx="100" cy="40" r="18" fill="none" stroke="#9191a1" stroke-width="2" opacity="0.6"/>
-                                            <circle class="chamber-indicator" data-chamber="0" cx="100" cy="40" r="8" fill="#1c1c24" stroke="#9191a1" stroke-width="1.5"/>
-                                            
-                                            <!-- Chamber 2 (60° clockwise) -->
-                                            <circle class="cylinder-chamber" data-chamber="1" cx="151.96" cy="70" r="18" fill="none" stroke="#9191a1" stroke-width="2" opacity="0.6"/>
-                                            <circle class="chamber-indicator" data-chamber="1" cx="151.96" cy="70" r="8" fill="#1c1c24" stroke="#9191a1" stroke-width="1.5"/>
-                                            
-                                            <!-- Chamber 3 (120° clockwise) -->
-                                            <circle class="cylinder-chamber" data-chamber="2" cx="151.96" cy="130" r="18" fill="none" stroke="#9191a1" stroke-width="2" opacity="0.6"/>
-                                            <circle class="chamber-indicator" data-chamber="2" cx="151.96" cy="130" r="8" fill="#1c1c24" stroke="#9191a1" stroke-width="1.5"/>
-                                            
-                                            <!-- Chamber 4 (bottom) -->
-                                            <circle class="cylinder-chamber" data-chamber="3" cx="100" cy="160" r="18" fill="none" stroke="#9191a1" stroke-width="2" opacity="0.6"/>
-                                            <circle class="chamber-indicator" data-chamber="3" cx="100" cy="160" r="8" fill="#1c1c24" stroke="#9191a1" stroke-width="1.5"/>
-                                            
-                                            <!-- Chamber 5 (240° clockwise) -->
-                                            <circle class="cylinder-chamber" data-chamber="4" cx="48.04" cy="130" r="18" fill="none" stroke="#9191a1" stroke-width="2" opacity="0.6"/>
-                                            <circle class="chamber-indicator" data-chamber="4" cx="48.04" cy="130" r="8" fill="#1c1c24" stroke="#9191a1" stroke-width="1.5"/>
-                                            
-                                            <!-- Chamber 6 (300° clockwise) -->
-                                            <circle class="cylinder-chamber" data-chamber="5" cx="48.04" cy="70" r="18" fill="none" stroke="#9191a1" stroke-width="2" opacity="0.6"/>
-                                            <circle class="chamber-indicator" data-chamber="5" cx="48.04" cy="70" r="8" fill="#1c1c24" stroke="#9191a1" stroke-width="1.5"/>
-                                        </g>
-                                        
-                                        <!-- Connecting spokes -->
-                                        <line x1="100" y1="85" x2="100" y2="40" stroke="#9191a1" stroke-width="1" opacity="0.3"/>
-                                        <line x1="113" y1="92.5" x2="151.96" y2="70" stroke="#9191a1" stroke-width="1" opacity="0.3"/>
-                                        <line x1="113" y1="107.5" x2="151.96" y2="130" stroke="#9191a1" stroke-width="1" opacity="0.3"/>
-                                        <line x1="100" y1="115" x2="100" y2="160" stroke="#9191a1" stroke-width="1" opacity="0.3"/>
-                                        <line x1="87" y1="107.5" x2="48.04" y2="130" stroke="#9191a1" stroke-width="1" opacity="0.3"/>
-                                        <line x1="87" y1="92.5" x2="48.04" y2="70" stroke="#9191a1" stroke-width="1" opacity="0.3"/>
-                                    </svg>
-                                </div>
-                                
-                                <div class="chambers-shared" id="chambersShared">
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                </div>
-                                <div class="bullet-info" id="bulletInfo">
-                                    <span class="bullet-count">6 طلقات متبقية</span>
-                                    <div class="bullets-breakdown" id="bulletsBreakdown" style="display: none;">
-                                        <div class="bullet-type live">
-                                            <span class="bullet-icon">💥</span>
-                                            <span id="liveBulletsCount">1</span>
-                                            <span class="bullet-label">حية</span>
-                                        </div>
-                                        <div class="bullet-type blank">
-                                            <span class="bullet-icon">⚪</span>
-                                            <span id="blankBulletsCount">5</span>
-                                            <span class="bullet-label">فارغة</span>
+                        <!-- Center Area -->
+                        <div class="center-area">
+                            <div class="versus-container">
+                                <!-- Player A -->
+                                <div class="player-side" id="playerAContainer">
+                                    <div class="player-avatar">
+                                        <div class="avatar-circle">
+                                            <img id="playerAAvatar" class="avatar-img" src="" alt="A" onerror="this.style.display='none'; document.getElementById('playerAInitial').style.display='block';">
+                                            <span id="playerAInitial" style="display: none;">A</span>
                                         </div>
                                     </div>
+                                    <h3 id="playerAName" class="player-name">لاعب أ</h3>
+                                    
+                                    <div class="hearts-display" id="heartsA" style="display: none;">
+                                        <span class="heart filled" id="heartA1">❤️</span>
+                                        <span class="heart filled" id="heartA2">❤️</span>
+                                    </div>
+                                    
+                                    <div class="powerups-display" id="powerupsA" style="display: none;">
+                                        <div class="powerup-item">
+                                            <span class="powerup-icon">🛡️</span>
+                                            <span id="shieldCountA">1</span>
+                                        </div>
+                                        <div class="powerup-item">
+                                            <span class="powerup-icon">🔄</span>
+                                            <span id="swapCountA">1</span>
+                                        </div>
+                                        <div class="powerup-item">
+                                            <span class="powerup-icon">👁️</span>
+                                            <span id="revealCountA">1</span>
+                                        </div>
+                                        <div class="powerup-item" id="healItemA" style="display: none;">
+                                            <span class="powerup-icon">💊</span>
+                                            <span id="healCountA">1</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="shield-status" id="shieldStatusA" style="display: none;">
+                                        🛡️ محمي
+                                    </div>
+                                    
+                                    <div id="chambersA" style="display: none;">
+                                        <div class="chamber"></div>
+                                        <div class="chamber"></div>
+                                        <div class="chamber"></div>
+                                        <div class="chamber"></div>
+                                        <div class="chamber"></div>
+                                        <div class="chamber"></div>
+                                    </div>
+                                    
+                                    <div class="turn-indicator" id="turnA">دورك</div>
+                                </div>
+
+                                <!-- Shared Revolver in Center -->
+                                <div class="vs-badge">
+                                    <div class="shared-revolver">
+                                        <svg class="revolver-cylinder" viewBox="0 0 200 200" width="120" height="120">
+                                            <circle cx="100" cy="100" r="25" fill="none" stroke="#9191a1" stroke-width="2"/>
+                                            <g class="chambers-group">
+                                                <circle class="cylinder-chamber current" data-chamber="0" cx="100" cy="50" r="15" fill="none" stroke="#e8e8ea" stroke-width="2"/>
+                                                <circle class="chamber-indicator current" data-chamber="0" cx="100" cy="50" r="8" fill="#1c1c24" stroke="#d4af37" stroke-width="1.5"/>
+                                                <circle class="cylinder-chamber" data-chamber="1" cx="143.3" cy="75" r="15" fill="none" stroke="#e8e8ea" stroke-width="2"/>
+                                                <circle class="chamber-indicator" data-chamber="1" cx="143.3" cy="75" r="8" fill="#1c1c24" stroke="#5a5a6a" stroke-width="1.5"/>
+                                                <circle class="cylinder-chamber" data-chamber="2" cx="143.3" cy="125" r="15" fill="none" stroke="#e8e8ea" stroke-width="2"/>
+                                                <circle class="chamber-indicator" data-chamber="2" cx="143.3" cy="125" r="8" fill="#1c1c24" stroke="#5a5a6a" stroke-width="1.5"/>
+                                                <circle class="cylinder-chamber" data-chamber="3" cx="100" cy="150" r="15" fill="none" stroke="#e8e8ea" stroke-width="2"/>
+                                                <circle class="chamber-indicator" data-chamber="3" cx="100" cy="150" r="8" fill="#1c1c24" stroke="#5a5a6a" stroke-width="1.5"/>
+                                                <circle class="cylinder-chamber" data-chamber="4" cx="56.7" cy="125" r="15" fill="none" stroke="#e8e8ea" stroke-width="2"/>
+                                                <circle class="chamber-indicator" data-chamber="4" cx="56.7" cy="125" r="8" fill="#1c1c24" stroke="#5a5a6a" stroke-width="1.5"/>
+                                                <circle class="cylinder-chamber" data-chamber="5" cx="56.7" cy="75" r="15" fill="none" stroke="#e8e8ea" stroke-width="2"/>
+                                                <circle class="chamber-indicator" data-chamber="5" cx="56.7" cy="75" r="8" fill="#1c1c24" stroke="#5a5a6a" stroke-width="1.5"/>
+                                                <line x1="100" y1="75" x2="100" y2="50" stroke="#5a5a6a" stroke-width="1"/>
+                                                <line x1="121.65" y1="87.5" x2="143.3" y2="75" stroke="#5a5a6a" stroke-width="1"/>
+                                                <line x1="121.65" y1="112.5" x2="143.3" y2="125" stroke="#5a5a6a" stroke-width="1"/>
+                                                <line x1="100" y1="125" x2="100" y2="150" stroke="#5a5a6a" stroke-width="1"/>
+                                                <line x1="78.35" y1="112.5" x2="56.7" y2="125" stroke="#5a5a6a" stroke-width="1"/>
+                                                <line x1="78.35" y1="87.5" x2="56.7" y2="75" stroke="#5a5a6a" stroke-width="1"/>
+                                            </g>
+                                            <line x1="100" y1="100" x2="100" y2="35" stroke="#ff3b3b" stroke-width="3" stroke-linecap="round"/>
+                                        </svg>
+                                        
+                                        <div id="chambersShared" style="display: none;">
+                                            <div class="chamber"></div>
+                                            <div class="chamber"></div>
+                                            <div class="chamber"></div>
+                                            <div class="chamber"></div>
+                                            <div class="chamber"></div>
+                                            <div class="chamber"></div>
+                                        </div>
+                                        <div class="bullet-info" id="bulletInfo">
+                                            <span class="bullet-count">6 طلقات متبقية</span>
+                                            <div class="bullets-breakdown" id="bulletsBreakdown" style="display: none;">
+                                                <div class="bullet-type live">
+                                                    <span class="bullet-icon">💥</span>
+                                                    <span id="liveBulletsCount">1</span>
+                                                    <span class="bullet-label">حية</span>
+                                                </div>
+                                                <div class="bullet-type blank">
+                                                    <span class="bullet-icon">⚪</span>
+                                                    <span id="blankBulletsCount">5</span>
+                                                    <span class="bullet-label">فارغة</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="vs-text">VS</div>
+                                    <div class="round-label" id="matchRound">الجولة 1</div>
+                                </div>
+
+                                <!-- Player B -->
+                                <div class="player-side" id="playerBContainer">
+                                    <div class="player-avatar">
+                                        <div class="avatar-circle">
+                                            <img id="playerBAvatar" class="avatar-img" src="" alt="B" onerror="this.style.display='none'; document.getElementById('playerBInitial').style.display='block';">
+                                            <span id="playerBInitial" style="display: none;">B</span>
+                                        </div>
+                                    </div>
+                                    <h3 id="playerBName" class="player-name">لاعب ب</h3>
+                                    
+                                    <div class="hearts-display" id="heartsB" style="display: none;">
+                                        <span class="heart filled" id="heartB1">❤️</span>
+                                        <span class="heart filled" id="heartB2">❤️</span>
+                                    </div>
+                                    
+                                    <div class="powerups-display" id="powerupsB" style="display: none;">
+                                        <div class="powerup-item">
+                                            <span class="powerup-icon">🛡️</span>
+                                            <span id="shieldCountB">1</span>
+                                        </div>
+                                        <div class="powerup-item">
+                                            <span class="powerup-icon">🔄</span>
+                                            <span id="swapCountB">1</span>
+                                        </div>
+                                        <div class="powerup-item">
+                                            <span class="powerup-icon">👁️</span>
+                                            <span id="revealCountB">1</span>
+                                        </div>
+                                        <div class="powerup-item" id="healItemB" style="display: none;">
+                                            <span class="powerup-icon">💊</span>
+                                            <span id="healCountB">1</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="shield-status" id="shieldStatusB" style="display: none;">
+                                        🛡️ محمي
+                                    </div>
+                                    
+                                    <div id="chambersB" style="display: none;">
+                                        <div class="chamber"></div>
+                                        <div class="chamber"></div>
+                                        <div class="chamber"></div>
+                                        <div class="chamber"></div>
+                                        <div class="chamber"></div>
+                                        <div class="chamber"></div>
+                                    </div>
+                                    
+                                    <div class="turn-indicator" id="turnB">دورك</div>
                                 </div>
                             </div>
-                            <div class="vs-text">VS</div>
-                            <div class="round-label" id="matchRound">الجولة 1</div>
+
+                            <!-- Countdown Timer -->
+                            <div class="countdown-container" id="countdownContainer">
+                                <div class="countdown-ring">
+                                    <svg viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="45" class="countdown-bg"/>
+                                        <circle cx="50" cy="50" r="45" class="countdown-progress" id="countdownCircle"/>
+                                    </svg>
+                                    <div class="countdown-text">
+                                        <span id="countdownNumber">30</span>
+                                    </div>
+                                </div>
+                                <p class="countdown-label">ثانية متبقية</p>
+                            </div>
                         </div>
 
-                        <!-- Player B -->
-                        <div class="player-side" id="playerBContainer">
-                            <div class="player-avatar">
-                                <div class="avatar-circle">
-                                    <img id="playerBAvatar" class="avatar-img" src="" alt="B" onerror="this.style.display='none'; document.getElementById('playerBInitial').style.display='block';">
-                                    <span id="playerBInitial" style="display: none;">B</span>
+                        <!-- Right Info Panel -->
+                        <div class="side-info right-info">
+                            <div class="hint-section">
+                                <h4>:أوامر الإطلاق</h4>
+                                <div class="hint-item">
+                                    <code>!اطلق نفسي</code>
+                                    <span>أو</span>
+                                    <code>!shoot self</code>
                                 </div>
-                            </div>
-                            <h3 id="playerBName" class="player-name">لاعب ب</h3>
-                            
-                            <!-- Hearts for Buckshot mode -->
-                            <div class="hearts-display" id="heartsB" style="display: none;">
-                                <span class="heart filled" id="heartB1">❤️</span>
-                                <span class="heart filled" id="heartB2">❤️</span>
-                            </div>
-                            
-                            <!-- Power-ups للطور المطور -->
-                            <div class="powerups-display" id="powerupsB" style="display: none;">
-                                <div class="powerup-item">
-                                    <span class="powerup-icon">🛡️</span>
-                                    <span id="shieldCountB">1</span>
-                                </div>
-                                <div class="powerup-item">
-                                    <span class="powerup-icon">🔄</span>
-                                    <span id="swapCountB">1</span>
-                                </div>
-                                <div class="powerup-item">
-                                    <span class="powerup-icon">👁️</span>
-                                    <span id="revealCountB">1</span>
-                                </div>
-                                <div class="powerup-item" id="healItemB" style="display: none;">
-                                    <span class="powerup-icon">💊</span>
-                                    <span id="healCountB">1</span>
+                                <div class="hint-item">
+                                    <code>!اطلق عدوي</code>
+                                    <span>أو</span>
+                                    <code>!shoot opponent</code>
                                 </div>
                             </div>
                             
-                            <div class="shield-status" id="shieldStatusB" style="display: none;">
-                                🛡️ محمي
-                            </div>
-                            
-                            <!-- Hidden chambers for compatibility -->
-                            <div id="chambersB" style="display: none;">
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                            </div>
-                            
-                            <div class="turn-indicator" id="turnB">دورك</div>
-                        </div>
-                    </div>
-
-                    <!-- Countdown Timer -->
-                    <div class="countdown-container" id="countdownContainer">
-                        <div class="countdown-ring">
-                            <svg viewBox="0 0 100 100">
-                                <circle cx="50" cy="50" r="45" class="countdown-bg"/>
-                                <circle cx="50" cy="50" r="45" class="countdown-progress" id="countdownCircle"/>
-                            </svg>
-                            <div class="countdown-text">
-                                <span id="countdownNumber">30</span>
-                            </div>
-                        </div>
-                        <p class="countdown-label">ثانية متبقية</p>
-                    </div>
-
-                    <!-- Action Commands -->
-                    <div class="action-hints">
-                        <div class="hint-section">
-                            <h4>أوامر الإطلاق:</h4>
-                            <div class="hint-item">
-                                <code>!اطلق نفسي</code>
-                                <span>أو</span>
-                                <code>!shoot self</code>
-                            </div>
-                            <div class="hint-item">
-                                <code>!اطلق عدوي</code>
-                                <span>أو</span>
-                                <code>!shoot opponent</code>
-                            </div>
-                        </div>
-                        
-                        <div class="hint-section powerups-hint" id="powerupsHint" style="display: none;">
-                            <h4>القوى الخاصة (مرة واحدة لكل نوع):</h4>
-                            <div class="hint-item">
-                                <code>!درع</code>
-                                <span>حماية من طلقة واحدة</span>
-                            </div>
-                            <div class="hint-item">
-                                <code>!تبديل</code>
-                                <span>تبديل الطلقة (فارغة↔حية)</span>
-                            </div>
-                            <div class="hint-item">
-                                <code>!كشف</code>
-                                <span>كشف الطلقة الحالية</span>
-                            </div>
-                        </div>
-                        
-                        <div class="hint-section buckshot-hint" id="buckshotHint" style="display: none;">
-                            <h4>Buckshot Mode:</h4>
-                            <div class="hint-item">
-                                <code>❤️❤️</code>
-                                <span>قلبين لكل لاعب - اصابتين للموت</span>
-                            </div>
-                            <div class="hint-item">
-                                <code>🎲</code>
-                                <span>طلقات عشوائية (1-3 حية + فارغة)</span>
-                            </div>
-                            <div class="hint-item">
-                                <code>!علاج</code>
-                                <span>استعادة قلب واحد</span>
-                            </div>
-                            <div class="hint-item">
-                                <code>!درع / !كشف / !تبديل</code>
-                                <span>نفس القوى من الطور المطور</span>
+                            <div class="hint-section powerups-hint" id="powerupsHint" style="display: none;">
+                                <h4>:القوى الخاصة</h4>
+                                <div class="hint-item">
+                                    <code>!درع</code>
+                                    <span>حماية من طلقة واحدة</span>
+                                </div>
+                                <div class="hint-item">
+                                    <code>!تبديل</code>
+                                    <span>تبديل الطلقة</span>
+                                </div>
+                                <div class="hint-item">
+                                    <code>!كشف</code>
+                                    <span>كشف الطلقة الحالية</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Result State -->
                 <div id="resultState" class="state-container">
                     <div class="result-content">
                         <div class="result-icon" id="resultIcon">💀</div>
@@ -382,56 +365,55 @@
                         <div class="result-animation" id="resultAnimation"></div>
                     </div>
                 </div>
+
+                <!-- Tournament Complete State -->
+                <div id="completeState" class="state-container">
+                    <div class="complete-content">
+                        <div class="trophy-icon">🏆</div>
+                        <h2>انتهت البطولة!</h2>
+                        <div class="winner-display">
+                            <div class="winner-avatar" id="winnerAvatar"></div>
+                            <h3 id="winnerName" class="winner-name">البطل</h3>
+                        </div>
+                        <button id="newTournamentBtn" class="primary-btn">
+                            🎮 بطولة جديدة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dramatic Overlay -->
+                <div id="dramaticOverlay" class="dramatic-overlay">
+                    <div class="dramatic-icon" id="dramaticIcon"></div>
+                    <div class="dramatic-text" id="dramaticText"></div>
+                </div>
             </div>
 
-            <!-- Right Panel (Tournament Bracket) -->
+            <!-- Right Panel -->
             <div class="right-panel">
-                <h2>شجرة البطولة</h2>
-                <div id="bracketDisplay" class="bracket-container">
-                    <p class="empty-state">ابدأ البطولة لعرض الشجرة</p>
+                <div class="bracket-container">
+                    <h2>شجرة البطولة</h2>
+                    <div id="bracket" class="bracket"></div>
+                </div>
+
+                <div class="activity-log">
+                    <div class="log-header">
+                        <h2>سجل الأحداث</h2>
+                        <button id="clearLogBtn" class="icon-btn small">مسح</button>
+                    </div>
+                    <div id="activityLog" class="log-content"></div>
                 </div>
             </div>
         </div>
-
-        <!-- Log Panel -->
-        <div class="log-panel">
-            <div class="log-header">
-                <h3>سجل الأحداث</h3>
-                <button id="clearLogBtn" class="icon-btn small">🗑️</button>
-            </div>
-            <div id="gameLog" class="log-content"></div>
-        </div>
     </div>
-
-    <!-- Dramatic Overlay -->
-    <div id="dramaticOverlay" class="dramatic-overlay">
-        <div class="overlay-content">
-            <div class="dramatic-icon" id="dramaticIcon"></div>
-            <p class="dramatic-text" id="dramaticText"></p>
-        </div>
-    </div>
-
-    <!-- Screen Flash Effect -->
-    <div id="screenFlash" class="screen-flash"></div>
 
     <!-- Audio Elements -->
-    <audio id="spinSound" preload="auto">
-        <source src="spin.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="clickSound" preload="auto">
-        <source src="click.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="shotSound" preload="auto">
-        <source src="shot.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="deathSound" preload="auto">
-        <source src="death.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="tensionSound" preload="auto" loop>
-        <source src="tension.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="spinSound" src="sounds/spin.mp3" preload="auto"></audio>
+    <audio id="clickSound" src="sounds/click.mp3" preload="auto"></audio>
+    <audio id="shotSound" src="sounds/shot.mp3" preload="auto"></audio>
+    <audio id="deathSound" src="sounds/death.mp3" preload="auto"></audio>
+    <audio id="tensionSound" src="sounds/tension.mp3" preload="auto"></audio>
 
-    <script src="tmi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tmi.js@1.8.5/dist/tmi.min.js"></script>
     <script src="auth.js"></script>
     <script src="main.js"></script>
 </body>
