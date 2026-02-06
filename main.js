@@ -31,6 +31,7 @@ const GameState = {
     playerBPowerups: { shield: 1, swap: 1, reveal: 1 },
     playerAShieldActive: false,
     playerBShieldActive: false,
+    powerupUsedThisTurn: false, // Fix 5: Track if powerup was used this turn
     
     // Twitch connection
     twitchClient: null,
@@ -207,10 +208,16 @@ function setGameMode(mode) {
 function usePowerup(player, type) {
     console.log('[Powerup] Attempt to use:', type, 'by', player);
     
-    // Fix 5: Check if it's player's turn
+    // Fix 6: Check if it's player's turn
     const currentPlayer = GameState.currentTurn === 'A' ? GameState.playerA : GameState.playerB;
     if (player !== currentPlayer) {
         logMessage(`❌ ${player}: ليس دورك! لا يمكنك استخدام القوى الخاصة`, 'danger');
+        return;
+    }
+    
+    // Fix 5: Check if already used a powerup this turn
+    if (GameState.powerupUsedThisTurn) {
+        logMessage(`❌ ${player}: لقد استخدمت قوة بالفعل في هذا الدور! انتظر الدور القادم`, 'danger');
         return;
     }
     
@@ -226,6 +233,7 @@ function usePowerup(player, type) {
     
     // Use the powerup
     powerups[type]--;
+    GameState.powerupUsedThisTurn = true; // Mark that a powerup was used this turn
     console.log('[Powerup] Used', type, '- Remaining:', powerups[type]);
     
     // Apply effect based on type
@@ -585,6 +593,8 @@ function updateCylinderChambers() {
     
     const currentChamber = GameState.sharedRevolver.currentChamber;
     
+    console.log('[Cylinder] Updating chambers - Current:', currentChamber);
+    
     // Update visual chamber states
     for (let i = 0; i < 6; i++) {
         const chamberEl = document.querySelector(`.cylinder-chamber[data-chamber="${i}"]`);
@@ -592,22 +602,33 @@ function updateCylinderChambers() {
         
         if (!chamberEl || !indicatorEl) continue;
         
-        // Clear all states
+        // CLEAR ALL STATES FIRST - Fix 7
         chamberEl.classList.remove('used', 'current');
-        indicatorEl.classList.remove('used', 'current');
+        chamberEl.style.stroke = '';
+        chamberEl.style.opacity = '';
+        chamberEl.style.filter = '';
         
+        indicatorEl.classList.remove('used', 'current');
+        indicatorEl.style.fill = '';
+        indicatorEl.style.stroke = '';
+        indicatorEl.style.filter = '';
+        indicatorEl.style.animation = '';
+        
+        // Apply correct state
         if (i < currentChamber) {
-            // Used chamber
+            // Used chamber - gray
             chamberEl.classList.add('used');
             indicatorEl.classList.add('used');
         } else if (i === currentChamber) {
-            // Current chamber
+            // Current chamber ONLY - golden
             chamberEl.classList.add('current');
             indicatorEl.classList.add('current');
+            console.log('[Cylinder] Set chamber', i, 'as CURRENT (golden)');
         }
+        // Chambers > currentChamber stay default (not used, not current)
     }
     
-    console.log('[Cylinder] Updated chamber visuals - Current:', currentChamber);
+    console.log('[Cylinder] Chamber visuals updated');
 }
 
 // ============================================================
@@ -1245,6 +1266,10 @@ function startTurn() {
     console.log('[Turn] Current turn:', GameState.currentTurn);
     console.log('[Turn] Phase:', GameState.phase);
     
+    // Reset powerup usage flag for new turn
+    GameState.powerupUsedThisTurn = false;
+    console.log('[Turn] Powerup usage reset for new turn');
+    
     // Force update active player visual
     updateActivePlayer();
     
@@ -1274,8 +1299,14 @@ function startTurn() {
             console.log('[Turn] TIME UP!');
             clearInterval(GameState.turnTimer);
             GameState.turnTimer = null;
-            logMessage('⏰ انتهى الوقت - الجبان يطلق على نفسه!', 'warning');
-            setTimeout(() => handleShootCommand('self'), 1000);
+            logMessage('⏰ انتهى الوقت - تم تخطي الدور!', 'warning');
+            
+            // Skip turn without using bullet
+            setTimeout(() => {
+                GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
+                updateActivePlayer();
+                startTurn();
+            }, 1000);
         }
         // Removed tension sound from timer - only plays on shoot command
     }, 1000);
