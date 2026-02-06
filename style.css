@@ -39,8 +39,8 @@ body {
 html, body {
     margin: 0;
     padding: 0;
-    height: auto;
-    min-height: 100vh;
+    height: 100%;
+    overflow: hidden;
 }
 
 body::before {
@@ -58,15 +58,16 @@ body::before {
 }
 
 /* Screen Management */
+/* ===== SCREEN SYSTEM (FIXED) ===== */
 .screen {
+    position: fixed;
+    inset: 0;
     display: none;
-    opacity: 0;
-    transition: opacity 0.5s ease;
+    z-index: 1;
 }
 
 .screen.active {
-    display: block;
-    animation: fadeIn 0.5s ease forwards;
+    display: flex;
 }
 
 @keyframes fadeIn {
@@ -77,16 +78,11 @@ body::before {
 
 /* ===== LOGIN SCREEN ===== */
 #loginScreen {
-    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3rem;
+    padding: 1rem;
     position: relative;
-    z-index: 1;
-}
-
-#loginScreen.active {
-    display: flex;
+    z-index: 2;
 }
 
 .login-container {
@@ -212,11 +208,8 @@ body::before {
 /* ===== GAME SCREEN ===== */
 #gameScreen {
     position: relative;
-    z-index: 1;
-    display: flex;
+    z-index: 2;
     flex-direction: column;
-    margin: 0;
-    padding: 0;
 }
 
 /* Top Bar */
