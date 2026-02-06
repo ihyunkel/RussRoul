@@ -71,7 +71,7 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    padding: 2rem;
     position: relative;
     z-index: 1;
 }
@@ -313,6 +313,50 @@ body::before {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
+}
+
+.game-mode-selector {
+    background: var(--color-bg-light);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 2px solid var(--color-accent);
+    margin-bottom: 0.5rem;
+}
+
+.game-mode-selector h3 {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    color: var(--color-gold);
+}
+
+.mode-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.mode-btn {
+    flex: 1;
+    background: var(--color-bg-medium);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+    padding: 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+}
+
+.mode-btn.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 15px rgba(255, 59, 59, 0.5);
 }
 
 .control-btn {
@@ -608,6 +652,51 @@ body::before {
     transition: all 0.3s ease;
 }
 
+.powerups-display {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+    justify-content: center;
+}
+
+.powerup-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--color-bg-light);
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.powerup-icon {
+    font-size: 1.3rem;
+}
+
+.powerup-item span:last-child {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-gold);
+}
+
+.powerup-item.depleted {
+    opacity: 0.3;
+    border-color: var(--color-danger);
+}
+
+.shield-status {
+    background: var(--color-success);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    animation: pulse 1s ease infinite;
+    box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+}
+
 .player-side.active .turn-indicator {
     opacity: 1;
     transform: scale(1);
@@ -620,6 +709,53 @@ body::before {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+}
+
+.shared-revolver {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 59, 59, 0.05);
+    border-radius: 16px;
+    border: 2px solid rgba(255, 59, 59, 0.2);
+}
+
+.revolver-icon-large {
+    font-size: 4rem;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.chambers-shared {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.chambers-shared .chamber {
+    width: 25px;
+    height: 35px;
+}
+
+.bullet-info {
+    font-size: 0.95rem;
+    color: var(--color-text-dim);
+    font-weight: 600;
+}
+
+.bullet-count {
+    background: var(--color-bg-light);
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    border: 1px solid var(--color-accent);
 }
 
 .vs-text {
@@ -698,29 +834,54 @@ body::before {
 .action-hints {
     margin-top: 2rem;
     display: flex;
-    gap: 2rem;
-    justify-content: center;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.hint-section {
+    background: var(--color-bg-light);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hint-section h4 {
+    font-size: 1rem;
+    color: var(--color-gold);
+    margin-bottom: 0.8rem;
+    text-align: center;
 }
 
 .hint-item {
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.hint-item:last-child {
+    margin-bottom: 0;
 }
 
 .hint-item code {
-    background: var(--color-bg-light);
-    padding: 0.5rem 1rem;
+    background: var(--color-bg-medium);
+    padding: 0.4rem 0.8rem;
     border-radius: 6px;
     color: var(--color-accent);
     font-weight: 600;
     border: 1px solid rgba(255, 59, 59, 0.3);
+    font-size: 0.85rem;
 }
 
 .hint-item span {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--color-text-dim);
+}
+
+.powerups-hint {
+    border: 2px solid var(--color-gold);
+    background: rgba(212, 175, 55, 0.05);
 }
 
 /* Result State */
