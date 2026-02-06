@@ -299,17 +299,17 @@ body::before {
 }
 
 .left-panel::-webkit-scrollbar {
-    width: 6px;
+    width: 2px;
 }
 
 .left-panel::-webkit-scrollbar-track {
-    background: rgba(241, 234, 234, 0.05);
-    border-radius: 4px;
+    background: var(--color-bg-dark);
+    border-radius: 2px;
 }
 
 .left-panel::-webkit-scrollbar-thumb {
-    background: rgb(241, 234, 234);
-    border-radius: 4px;
+    background: var(--color-accent);
+    border-radius: 2px;
 }
 
 .tournament-status h2,
@@ -447,17 +447,17 @@ body::before {
 }
 
 .scrollable-list::-webkit-scrollbar {
-    width: 6px;
+    width: 2px;
 }
 
 .scrollable-list::-webkit-scrollbar-track {
     background: var(--color-bg-light);
-    border-radius: 3px;
+    border-radius: 2px;
 }
 
 .scrollable-list::-webkit-scrollbar-thumb {
     background: var(--color-accent);
-    border-radius: 3px;
+    border-radius: 2px;
 }
 
 .player-item {
@@ -1111,17 +1111,17 @@ body::before {
 }
 
 .right-panel::-webkit-scrollbar {
-    width: 6px;
+    width: 2px;
 }
 
 .right-panel::-webkit-scrollbar-track {
-    background: var(--color-bg-light);
-    border-radius: 3px;
+    background: var(--color-bg-dark);
+    border-radius: 2px;
 }
 
 .right-panel::-webkit-scrollbar-thumb {
     background: var(--color-accent);
-    border-radius: 3px;
+    border-radius: 2px;
 }
 
 .right-panel h2 {
@@ -1369,4 +1369,26 @@ body::before {
     .vs-badge {
         order: -1;
     }
+}
+
+/* Scrollbar styling */
+.screen.active::-webkit-scrollbar {
+    width: 10px;
+}
+
+.screen.active::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.screen.active::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        #ff3b3b,
+        #b81f1f
+    );
+    border-radius: 10px;
+}
+
+.screen.active::-webkit-scrollbar-thumb:hover {
+    background: #ff5c5c;
 }
