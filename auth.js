@@ -6,6 +6,9 @@
 
 const TWITCH_CLIENT_ID = '7pld11bhx8g1mo9bu0zgvz692i3lgk'; // ← INSERT YOUR CLIENT ID HERE
 
+// Make it available globally for API calls
+window.TWITCH_CLIENT_ID = TWITCH_CLIENT_ID;
+
 // OAuth Configuration
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 const SCOPES = 'chat:read chat:edit'; // Permissions needed
