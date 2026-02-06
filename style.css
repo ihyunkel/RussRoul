@@ -80,7 +80,7 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding: 3rem;
     position: relative;
     z-index: 1;
 }
@@ -114,8 +114,8 @@ body::before {
 }
 
 .rotating-chamber {
-    width: 100px;
-    height: 100px;
+    width: 130px;
+    height: 130px;
     color: var(--color-accent);
     filter: drop-shadow(var(--shadow-glow));
     animation: rotate 8s linear infinite;
