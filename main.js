@@ -186,6 +186,43 @@ function usePowerup(player, type) {
 }
 
 // ============================================================
+// DEBUG AND TEST FUNCTIONS
+// ============================================================
+
+// Test function - can be called from Console
+window.testTimer = function() {
+    console.log('========== MANUAL TIMER TEST ==========');
+    console.log('Current phase:', GameState.phase);
+    console.log('Current turn:', GameState.currentTurn);
+    console.log('Player A:', GameState.playerA);
+    console.log('Player B:', GameState.playerB);
+    
+    if (!GameState.currentTurn) {
+        console.log('Setting turn to A for test');
+        GameState.currentTurn = 'A';
+    }
+    
+    console.log('Calling startTurn...');
+    startTurn();
+};
+
+window.testActive = function() {
+    console.log('Testing updateActivePlayer...');
+    updateActivePlayer();
+};
+
+window.showGameState = function() {
+    console.log('========== GAME STATE ==========');
+    console.log('Phase:', GameState.phase);
+    console.log('Current Turn:', GameState.currentTurn);
+    console.log('Player A:', GameState.playerA);
+    console.log('Player B:', GameState.playerB);
+    console.log('Timer ID:', GameState.turnTimer);
+    console.log('Time Remaining:', GameState.turnTimeRemaining);
+    console.log('================================');
+};
+
+// ============================================================
 // SCREEN MANAGEMENT
 // ============================================================
 
@@ -416,6 +453,17 @@ function startTournament() {
     // Disable controls
     UI.toggleJoinBtn.disabled = true;
     UI.startTournamentBtn.disabled = true;
+    
+    // IMPORTANT: Lock game mode selection
+    UI.classicModeBtn.disabled = true;
+    UI.advancedModeBtn.disabled = true;
+    UI.classicModeBtn.style.opacity = '0.5';
+    UI.advancedModeBtn.style.opacity = '0.5';
+    UI.classicModeBtn.style.cursor = 'not-allowed';
+    UI.advancedModeBtn.style.cursor = 'not-allowed';
+    
+    const modeText = GameState.gameMode === 'classic' ? 'الكلاسيكي' : 'المطور';
+    logMessage(`🔒 تم قفل الطور: ${modeText}`, 'info');
     
     // Start first match
     setTimeout(() => startNextMatch(), 2000);
@@ -912,17 +960,28 @@ function endMatch(winner) {
 // ============================================================
 
 function showState(state) {
+    console.log('[UI] ========== CHANGING STATE ==========');
+    console.log('[UI] Changing to state:', state);
+    
     UI.waitingState.classList.remove('active');
     UI.matchState.classList.remove('active');
     UI.resultState.classList.remove('active');
     
+    console.log('[UI] Removed active from all states');
+    
     if (state === 'waiting') {
         UI.waitingState.classList.add('active');
+        console.log('[UI] Activated waiting state');
     } else if (state === 'match') {
         UI.matchState.classList.add('active');
+        console.log('[UI] Activated match state');
+        console.log('[UI] Match state classes:', UI.matchState.className);
     } else if (state === 'result') {
         UI.resultState.classList.add('active');
+        console.log('[UI] Activated result state');
     }
+    
+    console.log('[UI] ========== STATE CHANGED ==========');
 }
 
 function showDramaticOverlay(icon, text) {
@@ -998,6 +1057,15 @@ function resetGame() {
     UI.toggleJoinBtn.innerHTML = '<span class="status-dot"></span> فتح التسجيل';
     UI.toggleJoinBtn.disabled = false;
     UI.startTournamentBtn.disabled = true;
+    
+    // Re-enable game mode selection
+    UI.classicModeBtn.disabled = false;
+    UI.advancedModeBtn.disabled = false;
+    UI.classicModeBtn.style.opacity = '1';
+    UI.advancedModeBtn.style.opacity = '1';
+    UI.classicModeBtn.style.cursor = 'pointer';
+    UI.advancedModeBtn.style.cursor = 'pointer';
+    
     UI.playerCount.textContent = '0';
     UI.playersList.innerHTML = '';
     UI.bracketDisplay.innerHTML = '<p class="empty-state">ابدأ البطولة لعرض الشجرة</p>';
