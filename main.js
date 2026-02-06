@@ -1108,11 +1108,6 @@ function handleShootCommand(target) {
         }
     }, 2000); // 2-second tension phase
 }
-            // Click
-            handleClick(shooterName);
-        }
-    }, 1500);
-}
 
 function handleDeath(victim, shooter, target) {
     playSound('shot');
