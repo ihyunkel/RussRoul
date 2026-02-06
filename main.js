@@ -21,10 +21,16 @@ const GameState = {
     playerAAvatar: null,
     playerBAvatar: null,
     currentTurn: null, // 'A' or 'B'
-    revolverA: null, // { chambers: [false, false, false, false, false, true], currentChamber: 0 }
-    revolverB: null,
+    sharedRevolver: null, // مسدس واحد مشترك للاعبين
     turnTimer: null,
     turnTimeRemaining: 30,
+    
+    // Power-ups (للطور المطور)
+    gameMode: 'classic', // 'classic' or 'advanced'
+    playerAPowerups: { shield: 3, swap: 3, reveal: 3 },
+    playerBPowerups: { shield: 3, swap: 3, reveal: 3 },
+    playerAShieldActive: false,
+    playerBShieldActive: false,
     
     // Twitch connection
     twitchClient: null,
@@ -48,6 +54,10 @@ const UI = {
     toggleJoinBtn: document.getElementById('toggleJoinBtn'),
     startTournamentBtn: document.getElementById('startTournamentBtn'),
     resetBtn: document.getElementById('resetBtn'),
+    
+    // Game mode buttons
+    classicModeBtn: document.getElementById('classicModeBtn'),
+    advancedModeBtn: document.getElementById('advancedModeBtn'),
     
     // Status
     roundNumber: document.getElementById('roundNumber'),
@@ -140,6 +150,39 @@ function setupEventListeners() {
     UI.startTournamentBtn.addEventListener('click', startTournament);
     UI.resetBtn.addEventListener('click', resetGame);
     UI.clearLogBtn.addEventListener('click', clearLog);
+    
+    // Game mode selection
+    UI.classicModeBtn.addEventListener('click', () => setGameMode('classic'));
+    UI.advancedModeBtn.addEventListener('click', () => setGameMode('advanced'));
+}
+
+// ============================================================
+// GAME MODE SELECTION
+// ============================================================
+
+function setGameMode(mode) {
+    GameState.gameMode = mode;
+    
+    if (mode === 'classic') {
+        UI.classicModeBtn.classList.add('active');
+        UI.advancedModeBtn.classList.remove('active');
+        logMessage('🎯 تم اختيار الطور الكلاسيكي', 'info');
+    } else {
+        UI.advancedModeBtn.classList.add('active');
+        UI.classicModeBtn.classList.remove('active');
+        logMessage('⚡ تم اختيار الطور المطور', 'success');
+    }
+}
+
+// ============================================================
+// POWER-UPS (للطور المطور)
+// ============================================================
+
+function usePowerup(player, type) {
+    // Placeholder for power-ups functionality
+    // Will be implemented fully later
+    logMessage(`⚠️ القوى الخاصة قيد التطوير - ${type}`, 'warning');
+    console.log('[Powerup] Used:', type, 'by', player);
 }
 
 // ============================================================
@@ -207,10 +250,16 @@ function handleChatMessage(channel, tags, message, self) {
     if (self) return; // Ignore own messages
     
     const username = tags['display-name'] || tags.username;
-    const messageLower = message.toLowerCase().trim();
+    const messageClean = message.trim();
+    const messageLower = messageClean.toLowerCase();
     
-    // Join command
-    if (messageLower === '!join' || messageLower === 'join') {
+    console.log('[Chat] Message from', username, ':', messageClean); // Debug
+    
+    // Join commands (Arabic & English) - check exact matches
+    if (messageLower === '!join' || messageLower === 'join' || 
+        messageClean === '!دخول' || messageClean === 'دخول' || 
+        messageClean === '!انضمام' || messageClean === 'انضمام') {
+        console.log('[Chat] Join command detected');
         handleJoinCommand(username, tags['user-id']);
         return;
     }
@@ -219,12 +268,51 @@ function handleChatMessage(channel, tags, message, self) {
     if (GameState.phase === 'match') {
         const currentPlayer = GameState.currentTurn === 'A' ? GameState.playerA : GameState.playerB;
         
+        console.log('[Chat] Current turn:', GameState.currentTurn, 'Player:', currentPlayer);
+        
         if (username === currentPlayer) {
-            if (messageLower === '!shoot self' || messageLower === 'shoot self') {
+            // Shoot self commands (Arabic & English)
+            if (messageLower === '!shoot self' || messageLower === 'shoot self' ||
+                messageClean === '!اطلق نفسي' || messageClean === 'اطلق نفسي' ||
+                messageClean === '!اطلق_نفسي' || messageClean === 'اطلق_نفسي') {
+                console.log('[Chat] Shoot self command');
                 handleShootCommand('self');
-            } else if (messageLower === '!shoot opponent' || messageLower === 'shoot opponent') {
-                handleShootCommand('opponent');
+                return;
             }
+            
+            // Shoot opponent commands (Arabic & English)
+            if (messageLower === '!shoot opponent' || messageLower === 'shoot opponent' ||
+                messageClean === '!اطلق عدوي' || messageClean === 'اطلق عدوي' ||
+                messageClean === '!اطلق_عدوي' || messageClean === 'اطلق_عدوي' ||
+                messageClean === '!اطلق خصمي' || messageClean === 'اطلق خصمي') {
+                console.log('[Chat] Shoot opponent command');
+                handleShootCommand('opponent');
+                return;
+            }
+            
+            // Power-up commands (Advanced mode only)
+            if (GameState.gameMode === 'advanced') {
+                // Shield
+                if (messageLower === '!shield' || messageLower === 'shield' ||
+                    messageClean === '!درع' || messageClean === 'درع') {
+                    usePowerup(currentPlayer, 'shield');
+                    return;
+                }
+                // Swap
+                if (messageLower === '!swap' || messageLower === 'swap' ||
+                    messageClean === '!تبديل' || messageClean === 'تبديل') {
+                    usePowerup(currentPlayer, 'swap');
+                    return;
+                }
+                // Reveal
+                if (messageLower === '!reveal' || messageLower === 'reveal' ||
+                    messageClean === '!كشف' || messageClean === 'كشف') {
+                    usePowerup(currentPlayer, 'reveal');
+                    return;
+                }
+            }
+        } else {
+            console.log('[Chat] Not current player. Username:', username, 'Current:', currentPlayer);
         }
     }
 }
@@ -507,12 +595,16 @@ function endTournament() {
 function initializeMatch() {
     GameState.phase = 'match';
     
-    // Initialize revolvers
+    // Initialize shared revolver (currently using old system)
     GameState.revolverA = createRevolver();
     GameState.revolverB = createRevolver();
     
     // Random starting player
     GameState.currentTurn = Math.random() < 0.5 ? 'A' : 'B';
+    
+    console.log('[Match] Initialized. Turn:', GameState.currentTurn);
+    console.log('[Match] Player A:', GameState.playerA);
+    console.log('[Match] Player B:', GameState.playerB);
     
     // Fetch avatars
     fetchAndSetAvatars();
@@ -526,8 +618,11 @@ function initializeMatch() {
     // Play spin sound
     playSound('spin');
     
-    // Start turn
-    startTurn();
+    // IMPORTANT: Start the turn timer
+    setTimeout(() => {
+        console.log('[Match] Starting turn for:', GameState.currentTurn);
+        startTurn();
+    }, 1000);
 }
 
 // Fetch and set player avatars
@@ -585,8 +680,10 @@ function updateMatchDisplay() {
     // Chambers
     updateChambers();
     
-    // Active player
+    // Active player - IMPORTANT: Show who's turn it is
     updateActivePlayer();
+    
+    console.log('[Match] Display updated. Active player:', GameState.currentTurn);
 }
 
 function updateChambers() {
@@ -622,21 +719,39 @@ function updateActivePlayer() {
 
 function startTurn() {
     GameState.turnTimeRemaining = 30;
+    
+    console.log('[Turn] Starting turn. Current turn:', GameState.currentTurn);
+    console.log('[Turn] Timer starting at:', GameState.turnTimeRemaining);
+    
+    // Update countdown display immediately
     updateCountdown();
     
-    // Start timer
+    // Clear any existing timer
+    if (GameState.turnTimer) {
+        clearInterval(GameState.turnTimer);
+        GameState.turnTimer = null;
+    }
+    
+    // Start new timer
     GameState.turnTimer = setInterval(() => {
         GameState.turnTimeRemaining--;
+        console.log('[Turn] Time remaining:', GameState.turnTimeRemaining);
         updateCountdown();
         
         if (GameState.turnTimeRemaining <= 0) {
             clearInterval(GameState.turnTimer);
+            GameState.turnTimer = null;
             logMessage('⏰ انتهى الوقت - الجبان يطلق على نفسه!', 'warning');
             setTimeout(() => handleShootCommand('self'), 1000);
         } else if (GameState.turnTimeRemaining <= 10) {
-            playSound('tension');
+            // Play tension sound in last 10 seconds
+            if (GameState.turnTimeRemaining === 10) {
+                playSound('tension');
+            }
         }
     }, 1000);
+    
+    console.log('[Turn] Timer started:', GameState.turnTimer);
 }
 
 function updateCountdown() {
@@ -648,7 +763,13 @@ function updateCountdown() {
 }
 
 function handleShootCommand(target) {
-    if (!GameState.turnTimer) return; // Not active turn
+    if (!GameState.turnTimer) {
+        console.log('[Shoot] ERROR: No active turn timer!');
+        return;
+    }
+    
+    console.log('[Shoot] Command received. Target:', target);
+    console.log('[Shoot] Current turn:', GameState.currentTurn);
     
     // Clear timer
     clearInterval(GameState.turnTimer);
@@ -663,12 +784,16 @@ function handleShootCommand(target) {
     const shooterName = shooter === 'A' ? GameState.playerA : GameState.playerB;
     const targetName = target === 'self' ? shooterName : (shooter === 'A' ? GameState.playerB : GameState.playerA);
     
+    console.log('[Shoot] Shooter:', shooterName, 'Target:', targetName);
+    
     logMessage(`🔫 ${shooterName} يطلق على ${target === 'self' ? 'نفسه' : 'خصمه'}...`, 'warning');
     
     // Dramatic pause
     setTimeout(() => {
         const currentChamber = revolver.currentChamber;
         const isLive = revolver.chambers[currentChamber];
+        
+        console.log('[Shoot] Chamber:', currentChamber, 'Is live:', isLive);
         
         revolver.currentChamber++;
         updateChambers();
