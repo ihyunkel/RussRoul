@@ -77,10 +77,16 @@
                         <h3>اختر طور اللعبة:</h3>
                         <div class="mode-buttons">
                             <button id="classicModeBtn" class="mode-btn active">
-                                🎯 كلاسيكي
+                                <span class="mode-btn-icon">🎯</span>
+                                <span class="mode-btn-label">كلاسيكي</span>
                             </button>
                             <button id="advancedModeBtn" class="mode-btn">
-                                ⚡ مطور
+                                <span class="mode-btn-icon">⚡</span>
+                                <span class="mode-btn-label">مطور</span>
+                            </button>
+                            <button id="buckshotModeBtn" class="mode-btn">
+                                <span class="mode-btn-icon">💀</span>
+                                <span class="mode-btn-label">Buckshot</span>
                             </button>
                         </div>
                     </div>
@@ -126,6 +132,12 @@
                             </div>
                             <h3 id="playerAName" class="player-name">لاعب أ</h3>
                             
+                            <!-- Hearts for Buckshot mode -->
+                            <div class="hearts-display" id="heartsA" style="display: none;">
+                                <span class="heart filled" id="heartA1">❤️</span>
+                                <span class="heart filled" id="heartA2">❤️</span>
+                            </div>
+                            
                             <!-- Power-ups للطور المطور -->
                             <div class="powerups-display" id="powerupsA" style="display: none;">
                                 <div class="powerup-item">
@@ -139,6 +151,10 @@
                                 <div class="powerup-item">
                                     <span class="powerup-icon">👁️</span>
                                     <span id="revealCountA">1</span>
+                                </div>
+                                <div class="powerup-item" id="healItemA" style="display: none;">
+                                    <span class="powerup-icon">💊</span>
+                                    <span id="healCountA">1</span>
                                 </div>
                             </div>
                             
@@ -218,6 +234,18 @@
                                 </div>
                                 <div class="bullet-info" id="bulletInfo">
                                     <span class="bullet-count">6 طلقات متبقية</span>
+                                    <div class="bullets-breakdown" id="bulletsBreakdown" style="display: none;">
+                                        <div class="bullet-type live">
+                                            <span class="bullet-icon">💥</span>
+                                            <span id="liveBulletsCount">1</span>
+                                            <span class="bullet-label">حية</span>
+                                        </div>
+                                        <div class="bullet-type blank">
+                                            <span class="bullet-icon">⚪</span>
+                                            <span id="blankBulletsCount">5</span>
+                                            <span class="bullet-label">فارغة</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="vs-text">VS</div>
@@ -234,6 +262,12 @@
                             </div>
                             <h3 id="playerBName" class="player-name">لاعب ب</h3>
                             
+                            <!-- Hearts for Buckshot mode -->
+                            <div class="hearts-display" id="heartsB" style="display: none;">
+                                <span class="heart filled" id="heartB1">❤️</span>
+                                <span class="heart filled" id="heartB2">❤️</span>
+                            </div>
+                            
                             <!-- Power-ups للطور المطور -->
                             <div class="powerups-display" id="powerupsB" style="display: none;">
                                 <div class="powerup-item">
@@ -247,6 +281,10 @@
                                 <div class="powerup-item">
                                     <span class="powerup-icon">👁️</span>
                                     <span id="revealCountB">1</span>
+                                </div>
+                                <div class="powerup-item" id="healItemB" style="display: none;">
+                                    <span class="powerup-icon">💊</span>
+                                    <span id="healCountB">1</span>
                                 </div>
                             </div>
                             
@@ -311,6 +349,26 @@
                             <div class="hint-item">
                                 <code>!كشف</code>
                                 <span>كشف الطلقة الحالية</span>
+                            </div>
+                        </div>
+                        
+                        <div class="hint-section buckshot-hint" id="buckshotHint" style="display: none;">
+                            <h4>Buckshot Mode:</h4>
+                            <div class="hint-item">
+                                <code>❤️❤️</code>
+                                <span>قلبين لكل لاعب - اصابتين للموت</span>
+                            </div>
+                            <div class="hint-item">
+                                <code>🎲</code>
+                                <span>طلقات عشوائية (1-3 حية + فارغة)</span>
+                            </div>
+                            <div class="hint-item">
+                                <code>!علاج</code>
+                                <span>استعادة قلب واحد</span>
+                            </div>
+                            <div class="hint-item">
+                                <code>!درع / !كشف / !تبديل</code>
+                                <span>نفس القوى من الطور المطور</span>
                             </div>
                         </div>
                     </div>
