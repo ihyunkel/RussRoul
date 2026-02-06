@@ -21,7 +21,7 @@ const GameState = {
     playerAAvatar: null,
     playerBAvatar: null,
     currentTurn: null, // 'A' or 'B'
-    sharedRevolver: null, // مسدس واحد مشترك للاعبين
+    sharedRevolver: null, // مسدس واحد مشترك: { chambers: [false, false, false, false, false, true], currentChamber: 0 }
     turnTimer: null,
     turnTimeRemaining: 30,
     
@@ -221,6 +221,140 @@ window.showGameState = function() {
     console.log('Time Remaining:', GameState.turnTimeRemaining);
     console.log('================================');
 };
+
+// ============================================================
+// REVOLVER CYLINDER ANIMATIONS
+// ============================================================
+
+function spinCylinder() {
+    const cylinder = document.getElementById('revolverCylinder');
+    if (!cylinder) return;
+    
+    console.log('[Cylinder] Starting spin animation');
+    
+    // Remove any existing animations
+    cylinder.classList.remove('spinning', 'advancing', 'shake-click', 'shake-shot', 'flash');
+    
+    // Trigger spin
+    void cylinder.offsetWidth; // Force reflow
+    cylinder.classList.add('spinning');
+    
+    // Play spin sound
+    playSound('spin');
+    
+    // Remove class after animation
+    setTimeout(() => {
+        cylinder.classList.remove('spinning');
+        console.log('[Cylinder] Spin complete');
+    }, 2000);
+}
+
+function advanceCylinder() {
+    const cylinder = document.getElementById('revolverCylinder');
+    if (!cylinder) return;
+    
+    console.log('[Cylinder] Advancing to next chamber');
+    
+    // Remove any existing animations
+    cylinder.classList.remove('spinning', 'advancing', 'shake-click', 'shake-shot', 'flash');
+    
+    // Trigger advance
+    void cylinder.offsetWidth; // Force reflow
+    cylinder.classList.add('advancing');
+    
+    // Permanently rotate by 60 degrees
+    const currentRotation = parseInt(cylinder.dataset.rotation || '0');
+    const newRotation = currentRotation + 60;
+    cylinder.dataset.rotation = newRotation;
+    cylinder.style.transform = `rotate(${newRotation}deg)`;
+    
+    // Remove class after animation
+    setTimeout(() => {
+        cylinder.classList.remove('advancing');
+    }, 400);
+}
+
+function clickShakeCylinder() {
+    const cylinder = document.getElementById('revolverCylinder');
+    if (!cylinder) return;
+    
+    console.log('[Cylinder] Click shake');
+    
+    // Add shake animation
+    cylinder.classList.add('shake-click');
+    
+    // Remove after animation
+    setTimeout(() => {
+        cylinder.classList.remove('shake-click');
+    }, 300);
+}
+
+function shotShakeCylinder() {
+    const cylinder = document.getElementById('revolverCylinder');
+    if (!cylinder) return;
+    
+    console.log('[Cylinder] Shot shake with flash');
+    
+    // Add shake and flash
+    cylinder.classList.add('shake-shot', 'flash');
+    
+    // Remove after animation
+    setTimeout(() => {
+        cylinder.classList.remove('shake-shot', 'flash');
+    }, 500);
+}
+
+function screenFlash() {
+    console.log('[Screen] Flash effect');
+    
+    // Create flash overlay
+    const flash = document.createElement('div');
+    flash.style.position = 'fixed';
+    flash.style.top = '0';
+    flash.style.left = '0';
+    flash.style.width = '100%';
+    flash.style.height = '100%';
+    flash.style.background = 'rgba(255, 59, 59, 0.4)';
+    flash.style.pointerEvents = 'none';
+    flash.style.zIndex = '9999';
+    flash.style.animation = 'flashFade 0.3s ease-out';
+    
+    document.body.appendChild(flash);
+    
+    setTimeout(() => {
+        flash.remove();
+    }, 300);
+}
+
+function updateCylinderChambers() {
+    if (!GameState.sharedRevolver) return;
+    
+    const currentChamber = GameState.sharedRevolver.currentChamber;
+    
+    // Update visual chamber states
+    for (let i = 0; i < 6; i++) {
+        const chamberEl = document.querySelector(`.cylinder-chamber[data-chamber="${i}"]`);
+        const indicatorEl = document.querySelector(`.chamber-indicator[data-chamber="${i}"]`);
+        
+        if (!chamberEl || !indicatorEl) continue;
+        
+        // Clear all states
+        chamberEl.classList.remove('used', 'current');
+        indicatorEl.classList.remove('used', 'current');
+        
+        if (i < currentChamber) {
+            // Used chamber
+            chamberEl.classList.add('used');
+            indicatorEl.classList.add('used');
+        } else if (i === currentChamber) {
+            // Current chamber
+            chamberEl.classList.add('current');
+            indicatorEl.classList.add('current');
+        }
+    }
+    
+    console.log('[Cylinder] Updated chamber visuals - Current:', currentChamber);
+}
 
 // ============================================================
 // SCREEN MANAGEMENT
@@ -644,9 +778,8 @@ function initializeMatch() {
     console.log('[Match] ========== INITIALIZING MATCH ==========');
     GameState.phase = 'match';
     
-    // Initialize shared revolver (currently using old system)
-    GameState.revolverA = createRevolver();
-    GameState.revolverB = createRevolver();
+    // Initialize SINGLE shared revolver
+    GameState.sharedRevolver = createRevolver();
     
     // Random starting player
     GameState.currentTurn = Math.random() < 0.5 ? 'A' : 'B';
@@ -656,6 +789,7 @@ function initializeMatch() {
     console.log('[Match] Player B:', GameState.playerB);
     console.log('[Match] Starting turn:', GameState.currentTurn);
     console.log('[Match] Starting player:', startingPlayer);
+    console.log('[Match] Shared Revolver:', GameState.sharedRevolver);
     
     // Fetch avatars
     fetchAndSetAvatars();
@@ -667,19 +801,20 @@ function initializeMatch() {
     displayBracket();
     
     // Log message about starting player
-    logMessage(`⚔️ المباراة بدأت! الدور الأول: ${startingPlayer}`, 'success');
+    logMessage(`⚔️ المباراة بدأت! مسدس واحد - 6 طلقات - الدور الأول: ${startingPlayer}`, 'success');
     
-    // Play spin sound
-    playSound('spin');
+    // SPIN THE CYLINDER with sound
+    spinCylinder();
     
-    // IMPORTANT: Ensure turn starts after UI is ready
+    // IMPORTANT: Ensure turn starts after spin animation (2 seconds) + UI ready
     setTimeout(() => {
         console.log('[Match] ========== STARTING FIRST TURN ==========');
         console.log('[Match] Current turn before start:', GameState.currentTurn);
-        updateActivePlayer(); // Make sure active player is shown
+        updateActivePlayer();
+        updateCylinderChambers(); // Update chamber visuals
         startTurn();
         console.log('[Match] ========== TURN STARTED ==========');
-    }, 1500);
+    }, 2500); // Wait for spin animation to complete
 }
 
 // Fetch and set player avatars
@@ -755,24 +890,58 @@ function updateMatchDisplay() {
 }
 
 function updateChambers() {
-    const chambersAElements = UI.chambersA.querySelectorAll('.chamber');
-    const chambersBElements = UI.chambersB.querySelectorAll('.chamber');
+    // Safety checks
+    if (!GameState.sharedRevolver) {
+        console.warn('[Chambers] Shared revolver not initialized');
+        return;
+    }
     
-    GameState.revolverA.chambers.forEach((used, i) => {
-        if (i < GameState.revolverA.currentChamber) {
-            chambersAElements[i].classList.add('used');
-        } else {
-            chambersAElements[i].classList.remove('used');
+    // Update the SHARED chambers display in center
+    const chambersShared = document.getElementById('chambersShared');
+    if (!chambersShared) {
+        console.warn('[Chambers] Shared chambers element not found');
+        return;
+    }
+    
+    const chambersElements = chambersShared.querySelectorAll('.chamber');
+    if (chambersElements.length === 0) {
+        console.warn('[Chambers] No chamber elements found in shared display');
+        return;
+    }
+    
+    // Update each chamber
+    GameState.sharedRevolver.chambers.forEach((isLive, i) => {
+        const chamberEl = chambersElements[i];
+        if (!chamberEl) return;
+        
+        // Clear all classes first
+        chamberEl.classList.remove('used', 'live');
+        
+        if (i < GameState.sharedRevolver.currentChamber) {
+            // Already used
+            chamberEl.classList.add('used');
+        } else if (i === GameState.sharedRevolver.currentChamber) {
+            // Current chamber - highlight it
+            chamberEl.classList.add('current');
         }
+        
+        // Show live chamber (for debugging - remove in production)
+        // if (isLive) {
+        //     chamberEl.classList.add('live');
+        // }
     });
     
-    GameState.revolverB.chambers.forEach((used, i) => {
-        if (i < GameState.revolverB.currentChamber) {
-            chambersBElements[i].classList.add('used');
-        } else {
-            chambersBElements[i].classList.remove('used');
+    // Update bullet count
+    const remainingBullets = 6 - GameState.sharedRevolver.currentChamber;
+    const bulletInfo = document.getElementById('bulletInfo');
+    if (bulletInfo) {
+        const bulletCount = bulletInfo.querySelector('.bullet-count');
+        if (bulletCount) {
+            bulletCount.textContent = `${remainingBullets} طلقات متبقية`;
         }
-    });
+    }
+    
+    console.log('[Chambers] Updated shared chambers - Current:', GameState.sharedRevolver.currentChamber, 'Remaining:', remainingBullets);
 }
 
 function updateActivePlayer() {
@@ -867,33 +1036,78 @@ function handleShootCommand(target) {
     clearInterval(GameState.turnTimer);
     GameState.turnTimer = null;
     
-    // Stop tension sound
-    UI.tensionSound.pause();
-    UI.tensionSound.currentTime = 0;
-    
     const shooter = GameState.currentTurn;
-    const revolver = shooter === 'A' ? GameState.revolverA : GameState.revolverB;
+    const revolver = GameState.sharedRevolver;
     const shooterName = shooter === 'A' ? GameState.playerA : GameState.playerB;
     const targetName = target === 'self' ? shooterName : (shooter === 'A' ? GameState.playerB : GameState.playerA);
     
     console.log('[Shoot] Shooter:', shooterName, 'Target:', targetName);
+    console.log('[Shoot] Shared revolver current chamber:', revolver.currentChamber);
     
     logMessage(`🔫 ${shooterName} يطلق على ${target === 'self' ? 'نفسه' : 'خصمه'}...`, 'warning');
     
-    // Dramatic pause
+    // TENSION PHASE: 2 seconds of anticipation
+    console.log('[Shoot] ========== TENSION PHASE ==========');
+    playSound('tension');
+    
     setTimeout(() => {
+        // Stop tension sound
+        UI.tensionSound.pause();
+        UI.tensionSound.currentTime = 0;
+        
+        console.log('[Shoot] ========== TRIGGER PULLED ==========');
+        
+        // Check chamber
         const currentChamber = revolver.currentChamber;
         const isLive = revolver.chambers[currentChamber];
         
         console.log('[Shoot] Chamber:', currentChamber, 'Is live:', isLive);
         
+        // Move to next chamber
         revolver.currentChamber++;
-        updateChambers();
         
         if (isLive) {
-            // BANG!
-            handleDeath(targetName, shooterName, target);
+            // LIVE CHAMBER - BANG!
+            console.log('[Shoot] 💥 LIVE CHAMBER - FIRING!');
+            
+            // Play shot sound FIRST
+            playSound('shot');
+            
+            // Flash and strong shake animation
+            shotShakeCylinder();
+            
+            // Screen flash
+            screenFlash();
+            
+            // After animations, handle death
+            setTimeout(() => {
+                handleDeath(targetName, shooterName, target);
+            }, 600);
+            
         } else {
+            // EMPTY CHAMBER - CLICK!
+            console.log('[Shoot] ✓ Empty chamber - click');
+            
+            // Play click sound FIRST
+            playSound('click');
+            
+            // Advance cylinder with rotation
+            advanceCylinder();
+            
+            // Light shake
+            clickShakeCylinder();
+            
+            // Update visuals
+            updateCylinderChambers();
+            updateChambers();
+            
+            // After animations, handle click
+            setTimeout(() => {
+                handleClick(shooterName);
+            }, 500);
+        }
+    }, 2000); // 2-second tension phase
+}
             // Click
             handleClick(shooterName);
         }
@@ -920,10 +1134,32 @@ function handleDeath(victim, shooter, target) {
 }
 
 function handleClick(shooter) {
-    playSound('click');
     logMessage(`✅ طلقة فارغة - دور ${shooter === GameState.playerA ? GameState.playerB : GameState.playerA}`, 'info');
     
-    // Switch turn
+    // Check if all chambers used - reload if needed
+    if (GameState.sharedRevolver.currentChamber >= 6) {
+        console.log('[Click] All chambers used - RELOADING');
+        showDramaticOverlay('🔄', 'نفدت الطلقات! إعادة التعبئة...');
+        
+        // Spin cylinder with sound
+        spinCylinder();
+        
+        setTimeout(() => {
+            // Reload: create new revolver
+            GameState.sharedRevolver = createRevolver();
+            updateCylinderChambers();
+            updateChambers();
+            logMessage('🔄 تم إعادة تعبئة المسدس - 6 طلقات جديدة!', 'warning');
+            
+            // Switch turn and continue
+            GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
+            updateActivePlayer();
+            setTimeout(() => startTurn(), 1000);
+        }, 2500);
+        return;
+    }
+    
+    // Switch turn normally
     GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
     updateActivePlayer();
     
