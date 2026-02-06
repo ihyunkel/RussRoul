@@ -70,6 +70,7 @@ body::before {
 .screen.active {
     display: flex;
     overflow-y: auto;
+    direction: ltr;        /* يخلي السكرول يمين */
 }
 
 @keyframes fadeIn {
