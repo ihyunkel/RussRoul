@@ -4,7 +4,7 @@
 // IMPORTANT: Insert your Twitch Client ID below
 // Get one from: https://dev.twitch.tv/console/apps
 
-const TWITCH_CLIENT_ID = 'YOUR_CLIENT_ID_HERE'; // ← INSERT YOUR CLIENT ID HERE
+const TWITCH_CLIENT_ID = '7pld11bhx8g1mo9bu0zgvz692i3lgk'; // ← INSERT YOUR CLIENT ID HERE
 
 // OAuth Configuration
 const REDIRECT_URI = window.location.origin + window.location.pathname;
