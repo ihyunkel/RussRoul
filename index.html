@@ -26,7 +26,7 @@
                 </svg>
             </div>
             <h1 class="game-title">الروليت الروسية</h1>
-            <p class="game-subtitle">الغامرة هي طريقك للفوز</p>
+            <p class="game-subtitle">المغامرة هي طريقك للفوز</p>
             <button id="loginBtn" class="primary-btn">
                 <span class="btn-icon">🎮</span>
                 <span>تسجيل الدخول بحساب تويتش</span>
@@ -73,6 +73,18 @@
                 </div>
 
                 <div class="controls">
+                    <div class="game-mode-selector">
+                        <h3>اختر طور اللعبة:</h3>
+                        <div class="mode-buttons">
+                            <button id="classicModeBtn" class="mode-btn active">
+                                🎯 كلاسيكي
+                            </button>
+                            <button id="advancedModeBtn" class="mode-btn">
+                                ⚡ مطور
+                            </button>
+                        </div>
+                    </div>
+                    
                     <button id="toggleJoinBtn" class="control-btn" disabled>
                         <span class="status-dot"></span>
                         فتح التسجيل
@@ -113,8 +125,35 @@
                                 </div>
                             </div>
                             <h3 id="playerAName" class="player-name">لاعب أ</h3>
-                            <div class="revolver-display">
-                                <div class="chambers" id="chambersA">
+                            
+                            <!-- Power-ups للطور المطور -->
+                            <div class="powerups-display" id="powerupsA" style="display: none;">
+                                <div class="powerup-item">
+                                    <span class="powerup-icon">🛡️</span>
+                                    <span id="shieldCountA">3</span>
+                                </div>
+                                <div class="powerup-item">
+                                    <span class="powerup-icon">🔄</span>
+                                    <span id="swapCountA">3</span>
+                                </div>
+                                <div class="powerup-item">
+                                    <span class="powerup-icon">👁️</span>
+                                    <span id="revealCountA">3</span>
+                                </div>
+                            </div>
+                            
+                            <div class="shield-status" id="shieldStatusA" style="display: none;">
+                                🛡️ محمي
+                            </div>
+                            
+                            <div class="turn-indicator" id="turnA">دورك</div>
+                        </div>
+
+                        <!-- Shared Revolver in Center -->
+                        <div class="vs-badge">
+                            <div class="shared-revolver">
+                                <div class="revolver-icon-large">🔫</div>
+                                <div class="chambers-shared" id="chambersShared">
                                     <div class="chamber"></div>
                                     <div class="chamber"></div>
                                     <div class="chamber"></div>
@@ -122,13 +161,10 @@
                                     <div class="chamber"></div>
                                     <div class="chamber"></div>
                                 </div>
-                                <div class="revolver-icon">🔫</div>
+                                <div class="bullet-info" id="bulletInfo">
+                                    <span class="bullet-count">6 طلقات متبقية</span>
+                                </div>
                             </div>
-                            <div class="turn-indicator" id="turnA">دورك</div>
-                        </div>
-
-                        <!-- VS Badge -->
-                        <div class="vs-badge">
                             <div class="vs-text">VS</div>
                             <div class="round-label" id="matchRound">الجولة 1</div>
                         </div>
@@ -142,17 +178,27 @@
                                 </div>
                             </div>
                             <h3 id="playerBName" class="player-name">لاعب ب</h3>
-                            <div class="revolver-display">
-                                <div class="chambers" id="chambersB">
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
+                            
+                            <!-- Power-ups للطور المطور -->
+                            <div class="powerups-display" id="powerupsB" style="display: none;">
+                                <div class="powerup-item">
+                                    <span class="powerup-icon">🛡️</span>
+                                    <span id="shieldCountB">3</span>
                                 </div>
-                                <div class="revolver-icon">🔫</div>
+                                <div class="powerup-item">
+                                    <span class="powerup-icon">🔄</span>
+                                    <span id="swapCountB">3</span>
+                                </div>
+                                <div class="powerup-item">
+                                    <span class="powerup-icon">👁️</span>
+                                    <span id="revealCountB">3</span>
+                                </div>
                             </div>
+                            
+                            <div class="shield-status" id="shieldStatusB" style="display: none;">
+                                🛡️ محمي
+                            </div>
+                            
                             <div class="turn-indicator" id="turnB">دورك</div>
                         </div>
                     </div>
@@ -173,13 +219,34 @@
 
                     <!-- Action Commands -->
                     <div class="action-hints">
-                        <div class="hint-item">
-                            <code>!shoot self</code>
-                            <span>أطلق على نفسك</span>
+                        <div class="hint-section">
+                            <h4>أوامر الإطلاق:</h4>
+                            <div class="hint-item">
+                                <code>!اطلق نفسي</code>
+                                <span>أو</span>
+                                <code>!shoot self</code>
+                            </div>
+                            <div class="hint-item">
+                                <code>!اطلق عدوي</code>
+                                <span>أو</span>
+                                <code>!shoot opponent</code>
+                            </div>
                         </div>
-                        <div class="hint-item">
-                            <code>!shoot opponent</code>
-                            <span>أطلق على الخصم</span>
+                        
+                        <div class="hint-section powerups-hint" id="powerupsHint" style="display: none;">
+                            <h4>القوى الخاصة (3 لكل نوع):</h4>
+                            <div class="hint-item">
+                                <code>!درع</code>
+                                <span>حماية من طلقة واحدة</span>
+                            </div>
+                            <div class="hint-item">
+                                <code>!تبديل</code>
+                                <span>تبديل الطلقة (فارغة↔حية)</span>
+                            </div>
+                            <div class="hint-item">
+                                <code>!كشف</code>
+                                <span>كشف الطلقة الحالية</span>
+                            </div>
                         </div>
                     </div>
                 </div>
