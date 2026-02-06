@@ -71,7 +71,7 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    height: 100vh;
     position: relative;
     z-index: 1;
 }
