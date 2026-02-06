@@ -358,78 +358,33 @@ body::before {
 }
 
 .mode-buttons {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
 }
 
 .mode-btn {
+    flex: 1;
     background: var(--color-bg-medium);
-    border: 2px solid rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.1);
     color: var(--color-text);
-    padding: 1rem 0.75rem;
-    border-radius: 10px;
+    padding: 0.6rem;
+    border-radius: 6px;
     cursor: pointer;
     font-family: var(--font-display);
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 85px;
-    position: relative;
-    overflow: hidden;
-}
-
-.mode-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.05) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.mode-btn:hover::before {
-    opacity: 1;
 }
 
 .mode-btn:hover {
     border-color: var(--color-accent);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 20px rgba(255, 59, 59, 0.2);
-}
-
-.mode-btn.active {
-    background: linear-gradient(135deg, var(--color-accent) 0%, #d91d1d 100%);
-    border-color: var(--color-accent);
-    box-shadow: 0 0 20px rgba(255, 59, 59, 0.6);
     transform: translateY(-2px);
 }
 
-.mode-btn.active::before {
-    opacity: 0;
-}
-
-.mode-btn-icon {
-    font-size: 2rem;
-    line-height: 1;
-    transition: transform 0.3s ease;
-}
-
-.mode-btn:hover .mode-btn-icon {
-    transform: scale(1.1);
-}
-
-.mode-btn-label {
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+.mode-btn.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 15px rgba(255, 59, 59, 0.5);
 }
 
 .control-btn {
@@ -785,70 +740,6 @@ body::before {
     margin-top: 0.5rem;
     animation: pulse 1s ease infinite;
     box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
-}
-
-/* Hearts Display for Buckshot Mode */
-.hearts-display {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    margin-top: 0.5rem;
-    font-size: 1.5rem;
-}
-
-.heart {
-    filter: drop-shadow(0 0 5px rgba(255, 59, 59, 0.8));
-    transition: all 0.3s ease;
-}
-
-.heart.filled {
-    animation: heartbeat 1.5s ease infinite;
-}
-
-.heart.empty {
-    opacity: 0.3;
-    filter: grayscale(100%);
-}
-
-@keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-/* Bullet Breakdown for Buckshot Mode */
-.bullets-breakdown {
-    display: flex;
-    gap: 1.5rem;
-    justify-content: center;
-    margin-top: 0.5rem;
-    padding: 0.75rem;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 8px;
-}
-
-.bullet-type {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-}
-
-.bullet-type.live {
-    color: var(--color-accent);
-}
-
-.bullet-type.blank {
-    color: var(--color-text-dim);
-}
-
-.bullet-icon {
-    font-size: 1.3rem;
-}
-
-.bullet-label {
-    font-size: 0.85rem;
-    opacity: 0.8;
 }
 
 .player-side.active .turn-indicator {
