@@ -32,6 +32,8 @@ body {
     color: var(--color-text);
     overflow-x: hidden;
     position: relative;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 body::before {
@@ -71,8 +73,12 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    position: relative;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 1;
 }
 
@@ -268,9 +274,11 @@ body::before {
 .game-container {
     display: grid;
     grid-template-columns: 300px 1fr 300px;
-    gap: 2rem;
-    padding: 2rem;
+    gap: 1.5rem;
+    padding: 1.5rem;
     flex: 1;
+    height: calc(100vh - 60px); /* Subtract top bar height */
+    overflow-y: auto;
 }
 
 /* Left Panel */
