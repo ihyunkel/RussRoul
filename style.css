@@ -110,8 +110,8 @@ body::before {
 }
 
 .rotating-chamber {
-    width: 130px;
-    height: 130px;
+    width: 150px;
+    height: 150px;
     color: var(--color-accent);
     filter: drop-shadow(var(--shadow-glow));
     animation: rotate 8s linear infinite;
