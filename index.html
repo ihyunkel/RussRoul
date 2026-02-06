@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>روليت روسية - بطولة تويتش</title>
+    <title>روليت روسية</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,13 +26,13 @@
                 </svg>
             </div>
             <h1 class="game-title">الروليت الروسية</h1>
-            <p class="game-subtitle">بطولة تويتش - من يبقى على قيد الحياة</p>
+            <p class="game-subtitle">الغامرة هي طريقك للفوز</p>
             <button id="loginBtn" class="primary-btn">
                 <span class="btn-icon">🎮</span>
                 <span>تسجيل الدخول بحساب تويتش</span>
             </button>
             <div class="login-info">
-                <p>• يجب أن تكون مذيعًا لبدء اللعبة</p>
+                <p>• يجب أن تكون ستريمر لبدء اللعبة</p>
                 <p>• المشاهدون يشاركون عبر الدردشة</p>
                 <p>• لا نحفظ أي بيانات - كل شيء محلي</p>
             </div>
@@ -108,7 +108,8 @@
                         <div class="player-side" id="playerAContainer">
                             <div class="player-avatar">
                                 <div class="avatar-circle">
-                                    <span id="playerAInitial">A</span>
+                                    <img id="playerAAvatar" class="avatar-img" src="" alt="A" onerror="this.style.display='none'; document.getElementById('playerAInitial').style.display='block';">
+                                    <span id="playerAInitial" style="display: none;">A</span>
                                 </div>
                             </div>
                             <h3 id="playerAName" class="player-name">لاعب أ</h3>
@@ -136,7 +137,8 @@
                         <div class="player-side" id="playerBContainer">
                             <div class="player-avatar">
                                 <div class="avatar-circle">
-                                    <span id="playerBInitial">B</span>
+                                    <img id="playerBAvatar" class="avatar-img" src="" alt="B" onerror="this.style.display='none'; document.getElementById('playerBInitial').style.display='block';">
+                                    <span id="playerBInitial" style="display: none;">B</span>
                                 </div>
                             </div>
                             <h3 id="playerBName" class="player-name">لاعب ب</h3>
@@ -224,19 +226,19 @@
 
     <!-- Audio Elements -->
     <audio id="spinSound" preload="auto">
-        <source src="sounds/spin.mp3" type="audio/mpeg">
+        <source src="spin.mp3" type="audio/mpeg">
     </audio>
     <audio id="clickSound" preload="auto">
-        <source src="sounds/click.mp3" type="audio/mpeg">
+        <source src="click.mp3" type="audio/mpeg">
     </audio>
     <audio id="shotSound" preload="auto">
-        <source src="sounds/shot.mp3" type="audio/mpeg">
+        <source src="shot.mp3" type="audio/mpeg">
     </audio>
     <audio id="deathSound" preload="auto">
-        <source src="sounds/death.mp3" type="audio/mpeg">
+        <source src="death.mp3" type="audio/mpeg">
     </audio>
     <audio id="tensionSound" preload="auto" loop>
-        <source src="sounds/tension.mp3" type="audio/mpeg">
+        <source src="tension.mp3" type="audio/mpeg">
     </audio>
 
     <script src="tmi.min.js"></script>
