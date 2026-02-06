@@ -641,6 +641,13 @@ body::before {
 .chamber.used {
     background: rgba(255, 59, 59, 0.2);
     border-color: var(--color-accent-dim);
+    opacity: 0.5;
+}
+
+.chamber.current {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+    animation: pulse 1s ease infinite;
 }
 
 .chamber.live {
@@ -743,15 +750,151 @@ body::before {
     border: 2px solid rgba(255, 59, 59, 0.2);
 }
 
-.revolver-icon-large {
-    font-size: 4rem;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
-    animation: float 3s ease-in-out infinite;
+/* Shared Revolver Cylinder */
+.revolver-cylinder-container {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 1rem;
+    position: relative;
 }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+.revolver-cylinder {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+    transform-origin: center;
+}
+
+/* Cylinder spin animation */
+.revolver-cylinder.spinning {
+    animation: cylinderSpin 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes cylinderSpin {
+    0% {
+        transform: rotate(0deg);
+    }
+    70% {
+        transform: rotate(1080deg);
+    }
+    100% {
+        transform: rotate(1080deg);
+    }
+}
+
+/* Chamber states */
+.cylinder-chamber {
+    transition: all 0.3s ease;
+}
+
+.cylinder-chamber.used {
+    stroke: #5a5a6a;
+    opacity: 0.3;
+}
+
+.cylinder-chamber.current {
+    stroke: var(--color-gold);
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.8));
+}
+
+.chamber-indicator {
+    transition: all 0.3s ease;
+}
+
+.chamber-indicator.used {
+    fill: #2a2a2f;
+    stroke: #5a5a6a;
+}
+
+.chamber-indicator.current {
+    fill: #1c1c24;
+    stroke: var(--color-gold);
+    filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.6));
+    animation: pulse 1.5s ease infinite;
+}
+
+/* Single chamber advance animation */
+.revolver-cylinder.advancing {
+    animation: chamberAdvance 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes chamberAdvance {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(70deg);
+    }
+    100% {
+        transform: rotate(60deg);
+    }
+}
+
+/* Click shake animation */
+.revolver-cylinder.shake-click {
+    animation: shakeClick 0.3s ease;
+}
+
+@keyframes shakeClick {
+    0%, 100% {
+        transform: translateX(0) rotate(0deg);
+    }
+    25% {
+        transform: translateX(-3px) rotate(-2deg);
+    }
+    75% {
+        transform: translateX(3px) rotate(2deg);
+    }
+}
+
+/* Shot shake animation (stronger) */
+.revolver-cylinder.shake-shot {
+    animation: shakeShot 0.5s ease;
+}
+
+@keyframes shakeShot {
+    0%, 100% {
+        transform: translateX(0) translateY(0) rotate(0deg);
+    }
+    10% {
+        transform: translateX(-8px) translateY(-4px) rotate(-4deg);
+    }
+    30% {
+        transform: translateX(8px) translateY(4px) rotate(4deg);
+    }
+    50% {
+        transform: translateX(-6px) translateY(-2px) rotate(-3deg);
+    }
+    70% {
+        transform: translateX(6px) translateY(2px) rotate(3deg);
+    }
+    90% {
+        transform: translateX(-3px) translateY(-1px) rotate(-1deg);
+    }
+}
+
+/* Flash effect for shot */
+.revolver-cylinder.flash {
+    animation: flash 0.3s ease;
+}
+
+@keyframes flash {
+    0%, 100% {
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 0 40px rgba(255, 59, 59, 1)) brightness(1.5);
+    }
+}
+
+@keyframes flashFade {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 .chambers-shared {
