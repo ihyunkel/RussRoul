@@ -68,9 +68,9 @@ body::before {
 }
 
 .screen.active > * {
-    direction: rtl;
     display: flex;
     overflow-y: auto;
+    direction: rtl;
 }
 
 @keyframes fadeIn {
