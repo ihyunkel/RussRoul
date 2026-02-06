@@ -133,17 +133,17 @@ body::before {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
     letter-spacing: 2px;
     text-shadow: 0 0 30px rgba(255, 59, 59, 0.5);
 }
 
 .game-subtitle {
-    font-size: 1.2rem;
+    font-size: 1.8rem;
     color: var(--color-text-dim);
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
     font-family: var(--font-body);
-    font-weight: 400;
+    font-weight: 500;
 }
 
 .primary-btn {
