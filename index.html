@@ -120,7 +120,6 @@
                     </div>
                 </div>
 
-                <!-- Match State -->
                 <div id="matchState" class="state-container">
                     <div class="versus-container">
                         <!-- Player A -->
@@ -173,7 +172,7 @@
                             <div class="turn-indicator" id="turnA">دورك</div>
                         </div>
 
-                        <!-- Shared Revolver in Center -->
+                        <!-- Shared Revolver -->
                         <div class="vs-badge">
                             <div class="shared-revolver">
                                 <svg class="revolver-cylinder" viewBox="0 0 200 200" width="120" height="120">
@@ -202,12 +201,8 @@
                                 </svg>
                                 
                                 <div id="chambersShared" style="display: none;">
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
-                                    <div class="chamber"></div>
+                                    <div class="chamber"></div><div class="chamber"></div><div class="chamber"></div>
+                                    <div class="chamber"></div><div class="chamber"></div><div class="chamber"></div>
                                 </div>
                                 <div class="bullet-info" id="bulletInfo">
                                     <span class="bullet-count">6 طلقات متبقية</span>
@@ -268,12 +263,8 @@
                             </div>
                             
                             <div id="chambersB" style="display: none;">
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
-                                <div class="chamber"></div>
+                                <div class="chamber"></div><div class="chamber"></div><div class="chamber"></div>
+                                <div class="chamber"></div><div class="chamber"></div><div class="chamber"></div>
                             </div>
                             
                             <div class="turn-indicator" id="turnB">دورك</div>
@@ -347,19 +338,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Result State -->
-                <div id="resultState" class="state-container">
-                    <div class="result-content">
-                        <div class="result-icon" id="resultIcon">💀</div>
-                        <h2 id="resultTitle">انتهت المباراة</h2>
-                        <p id="resultMessage">اللاعب أ فاز!</p>
-                        <div class="result-animation" id="resultAnimation"></div>
-                    </div>
-                </div>
-
-                <!-- Tournament Complete State -->
-                <div id="completeState" class="state-container">
                     <div class="complete-content">
                         <div class="trophy-icon">🏆</div>
                         <h2>انتهت البطولة!</h2>
