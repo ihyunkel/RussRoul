@@ -710,7 +710,17 @@ body::before {
 
 .powerup-item.depleted {
     opacity: 0.3;
-    border-color: var(--color-danger);
+    background: var(--color-bg-dark);
+    border-color: #5a5a6a;
+    cursor: not-allowed;
+}
+
+.powerup-item.depleted .powerup-icon {
+    filter: grayscale(100%);
+}
+
+.powerup-item.depleted span:last-child {
+    color: #5a5a6a;
 }
 
 .shield-status {
