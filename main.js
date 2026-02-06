@@ -26,9 +26,11 @@ const GameState = {
     turnTimeRemaining: 30,
     
     // Power-ups (للطور المطور)
-    gameMode: 'classic', // 'classic' or 'advanced'
-    playerAPowerups: { shield: 1, swap: 1, reveal: 1 },
-    playerBPowerups: { shield: 1, swap: 1, reveal: 1 },
+    gameMode: 'classic', // 'classic', 'advanced', or 'buckshot'
+    playerAPowerups: { shield: 1, swap: 1, reveal: 1, heal: 1 },
+    playerBPowerups: { shield: 1, swap: 1, reveal: 1, heal: 1 },
+    playerAHealth: 2,
+    playerBHealth: 2,
     playerAShieldActive: false,
     playerBShieldActive: false,
     powerupUsedThisTurn: false, // Fix 5: Track if powerup was used this turn
@@ -59,6 +61,7 @@ const UI = {
     // Game mode buttons
     classicModeBtn: document.getElementById('classicModeBtn'),
     advancedModeBtn: document.getElementById('advancedModeBtn'),
+    buckshotModeBtn: document.getElementById('buckshotModeBtn'),
     
     // Status
     roundNumber: document.getElementById('roundNumber'),
@@ -155,6 +158,7 @@ function setupEventListeners() {
     // Game mode selection
     UI.classicModeBtn.addEventListener('click', () => setGameMode('classic'));
     UI.advancedModeBtn.addEventListener('click', () => setGameMode('advanced'));
+    UI.buckshotModeBtn.addEventListener('click', () => setGameMode('buckshot'));
 }
 
 // ============================================================
@@ -164,40 +168,75 @@ function setupEventListeners() {
 function setGameMode(mode) {
     GameState.gameMode = mode;
     
+    const powerupsA = document.getElementById('powerupsA');
+    const powerupsB = document.getElementById('powerupsB');
+    const powerupsHint = document.getElementById('powerupsHint');
+    const buckshotHint = document.getElementById('buckshotHint');
+    const heartsA = document.getElementById('heartsA');
+    const heartsB = document.getElementById('heartsB');
+    const healItemA = document.getElementById('healItemA');
+    const healItemB = document.getElementById('healItemB');
+    const bulletsBreakdown = document.getElementById('bulletsBreakdown');
+    
+    // Reset all buttons
+    UI.classicModeBtn.classList.remove('active');
+    UI.advancedModeBtn.classList.remove('active');
+    UI.buckshotModeBtn.classList.remove('active');
+    
     if (mode === 'classic') {
         UI.classicModeBtn.classList.add('active');
-        UI.advancedModeBtn.classList.remove('active');
-        
-        // Hide powerups
-        const powerupsA = document.getElementById('powerupsA');
-        const powerupsB = document.getElementById('powerupsB');
-        const powerupsHint = document.getElementById('powerupsHint');
         
         if (powerupsA) powerupsA.style.display = 'none';
         if (powerupsB) powerupsB.style.display = 'none';
         if (powerupsHint) powerupsHint.style.display = 'none';
+        if (buckshotHint) buckshotHint.style.display = 'none';
+        if (heartsA) heartsA.style.display = 'none';
+        if (heartsB) heartsB.style.display = 'none';
+        if (bulletsBreakdown) bulletsBreakdown.style.display = 'none';
         
         logMessage('🎯 تم اختيار الطور الكلاسيكي', 'info');
-    } else {
-        UI.advancedModeBtn.classList.add('active');
-        UI.classicModeBtn.classList.remove('active');
         
-        // Show powerups
-        const powerupsA = document.getElementById('powerupsA');
-        const powerupsB = document.getElementById('powerupsB');
-        const powerupsHint = document.getElementById('powerupsHint');
+    } else if (mode === 'advanced') {
+        UI.advancedModeBtn.classList.add('active');
         
         if (powerupsA) powerupsA.style.display = 'flex';
         if (powerupsB) powerupsB.style.display = 'flex';
         if (powerupsHint) powerupsHint.style.display = 'block';
+        if (buckshotHint) buckshotHint.style.display = 'none';
+        if (heartsA) heartsA.style.display = 'none';
+        if (heartsB) heartsB.style.display = 'none';
+        if (healItemA) healItemA.style.display = 'none';
+        if (healItemB) healItemB.style.display = 'none';
+        if (bulletsBreakdown) bulletsBreakdown.style.display = 'none';
         
-        // Reset powerups to 1 each
-        GameState.playerAPowerups = { shield: 1, swap: 1, reveal: 1 };
-        GameState.playerBPowerups = { shield: 1, swap: 1, reveal: 1 };
+        GameState.playerAPowerups = { shield: 1, swap: 1, reveal: 1, heal: 0 };
+        GameState.playerBPowerups = { shield: 1, swap: 1, reveal: 1, heal: 0 };
         GameState.playerAShieldActive = false;
         GameState.playerBShieldActive = false;
         
-        logMessage('⚡ تم اختيار الطور المطور - كل لاعب لديه: 1 درع، 1 تبديل، 1 كشف', 'success');
+        logMessage('⚡ تم اختيار الطور المطور - 1 درع، 1 تبديل، 1 كشف', 'success');
+        
+    } else if (mode === 'buckshot') {
+        UI.buckshotModeBtn.classList.add('active');
+        
+        if (powerupsA) powerupsA.style.display = 'flex';
+        if (powerupsB) powerupsB.style.display = 'flex';
+        if (powerupsHint) powerupsHint.style.display = 'none';
+        if (buckshotHint) buckshotHint.style.display = 'block';
+        if (heartsA) heartsA.style.display = 'flex';
+        if (heartsB) heartsB.style.display = 'flex';
+        if (healItemA) healItemA.style.display = 'flex';
+        if (healItemB) healItemB.style.display = 'flex';
+        if (bulletsBreakdown) bulletsBreakdown.style.display = 'flex';
+        
+        GameState.playerAPowerups = { shield: 1, swap: 1, reveal: 1, heal: 1 };
+        GameState.playerBPowerups = { shield: 1, swap: 1, reveal: 1, heal: 1 };
+        GameState.playerAShieldActive = false;
+        GameState.playerBShieldActive = false;
+        GameState.playerAHealth = 2;
+        GameState.playerBHealth = 2;
+        
+        logMessage('💀 طور Buckshot - قلبين + طلقات عشوائية + قوى + علاج!', 'success');
     }
 }
 
@@ -247,6 +286,9 @@ function usePowerup(player, type) {
         case 'reveal':
             revealBullet(player);
             break;
+        case 'heal':
+            healPlayer(player);
+            break;
     }
     
     // Fix 3 & 4: Update visual display
@@ -257,7 +299,8 @@ function getPowerupName(type) {
     const names = {
         shield: 'الدرع',
         swap: 'التبديل',
-        reveal: 'الكشف'
+        reveal: 'الكشف',
+        heal: 'العلاج'  
     };
     return names[type] || type;
 }
@@ -736,8 +779,8 @@ function handleChatMessage(channel, tags, message, self) {
                 return;
             }
             
-            // Power-up commands (Advanced mode only)
-            if (GameState.gameMode === 'advanced') {
+            // Power-up commands (Advanced and Buckshot modes)
+            if (GameState.gameMode === 'advanced' || GameState.gameMode === 'buckshot') {
                 // Shield
                 if (messageLower === '!shield' || messageLower === 'shield' ||
                     messageClean === '!درع' || messageClean === 'درع') {
@@ -755,6 +798,15 @@ function handleChatMessage(channel, tags, message, self) {
                     messageClean === '!كشف' || messageClean === 'كشف') {
                     usePowerup(currentPlayer, 'reveal');
                     return;
+                }
+                
+                // Heal (Buckshot mode only)
+                if (GameState.gameMode === 'buckshot') {
+                    if (messageLower === '!heal' || messageLower === 'heal' ||
+                        messageClean === '!علاج' || messageClean === 'علاج') {
+                        usePowerup(currentPlayer, 'heal');
+                        return;
+                    }
                 }
             }
         } else {
@@ -1056,9 +1108,32 @@ function initializeMatch() {
     // Initialize SINGLE shared revolver
     GameState.sharedRevolver = createRevolver();
     
+    // Use Buckshot revolver if in Buckshot mode
+    if (GameState.gameMode === 'buckshot') {
+        GameState.sharedRevolver = createBuckshotRevolver();
+        console.log('[Buckshot] Revolver created:', GameState.sharedRevolver);
+    }
+    
     // Reset powerups for new match (if advanced mode)
     if (GameState.gameMode === 'advanced') {
-        GameState.playerAPowerups = { shield: 1, swap: 1, reveal: 1 };
+        GameState.playerAPowerups = { shield: 1, swap: 1, reveal: 1 }
+    
+    // Reset for Buckshot mode
+    if (GameState.gameMode === 'buckshot') {
+        GameState.playerAPowerups = { shield: 1, swap: 1, reveal: 1, heal: 1 };
+        GameState.playerBPowerups = { shield: 1, swap: 1, reveal: 1, heal: 1 };
+        GameState.playerAShieldActive = false;
+        GameState.playerBShieldActive = false;
+        GameState.playerAHealth = 2;
+        GameState.playerBHealth = 2;
+        
+        const shieldA = document.getElementById('shieldStatusA');
+        const shieldB = document.getElementById('shieldStatusB');
+        if (shieldA) shieldA.style.display = 'none';
+        if (shieldB) shieldB.style.display = 'none';
+        
+        console.log('[Buckshot] Health and powerups reset');
+    };
         GameState.playerBPowerups = { shield: 1, swap: 1, reveal: 1 };
         GameState.playerAShieldActive = false;
         GameState.playerBShieldActive = false;
@@ -1094,6 +1169,13 @@ function initializeMatch() {
     // Update powerups display
     if (GameState.gameMode === 'advanced') {
         updatePowerupsDisplay();
+    }
+    
+    // Update Buckshot displays
+    if (GameState.gameMode === 'buckshot') {
+        updatePowerupsDisplay();
+        updateHeartsDisplay();
+        updateBulletsBreakdown();
     }
     
     // Log message about starting player
@@ -1377,6 +1459,9 @@ function handleShootCommand(target) {
             // Play shot sound FIRST
             playSound('shot');
             
+            // Update bullets for Buckshot
+            if (GameState.gameMode === 'buckshot') updateBulletsBreakdown();
+            
             // Flash and strong shake animation
             shotShakeCylinder();
             
@@ -1404,6 +1489,9 @@ function handleShootCommand(target) {
             // Update visuals
             updateCylinderChambers();
             updateChambers();
+            
+            // Update bullets for Buckshot
+            if (GameState.gameMode === 'buckshot') updateBulletsBreakdown();
             
             // After animations, handle click
             setTimeout(() => {
@@ -1468,6 +1556,15 @@ function handleClick(shooter, target) {
         setTimeout(() => {
             // Reload: create new revolver
             GameState.sharedRevolver = createRevolver();
+            
+            // Use Buckshot revolver if in Buckshot mode
+            if (GameState.gameMode === 'buckshot') {
+                GameState.sharedRevolver = createBuckshotRevolver();
+                const live = GameState.sharedRevolver.liveCount;
+                const blank = GameState.sharedRevolver.blankCount;
+                logMessage(`🔄 إعادة التعبئة - ${live} حية + ${blank} فارغة!`, 'warning');
+                updateBulletsBreakdown();
+            }
             updateCylinderChambers();
             updateChambers();
             logMessage('🔄 تم إعادة تعبئة المسدس - 6 طلقات جديدة!', 'warning');
@@ -1484,6 +1581,7 @@ function handleClick(shooter, target) {
     if (target === 'self') {
         console.log('[Click] Shot self with empty chamber - BONUS TURN!');
         logMessage(`🎁 طلقة فارغة - ${shooter} يحصل على دور إضافي!`, 'success');
+            if (GameState.gameMode === 'buckshot') updateBulletsBreakdown();
         
         // Keep same player's turn
         setTimeout(() => startTurn(), 1000);
@@ -1492,6 +1590,7 @@ function handleClick(shooter, target) {
         logMessage(`✅ طلقة فارغة - دور ${shooter === GameState.playerA ? GameState.playerB : GameState.playerA}`, 'info');
         
         GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
+        if (GameState.gameMode === 'buckshot') updateBulletsBreakdown();
         updateActivePlayer();
         
         setTimeout(() => startTurn(), 1000);
@@ -1657,4 +1756,102 @@ function shuffleArray(array) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
+}
+
+// ============================================================
+// BUCKSHOT MODE FUNCTIONS
+// ============================================================
+
+// Create Buckshot revolver with random bullets (1-3 live)
+function createBuckshotRevolver() {
+    const liveCount = Math.floor(Math.random() * 3) + 1;
+    const blankCount = 6 - liveCount;
+    
+    console.log(`[Buckshot] Creating: ${liveCount} live, ${blankCount} blank`);
+    
+    const chambers = [];
+    for (let i = 0; i < liveCount; i++) chambers.push(true);
+    for (let i = 0; i < blankCount; i++) chambers.push(false);
+    
+    // Shuffle
+    for (let i = chambers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [chambers[i], chambers[j]] = [chambers[j], chambers[i]];
+    }
+    
+    return {
+        chambers: chambers,
+        currentChamber: 0,
+        liveCount: liveCount,
+        blankCount: blankCount
+    };
+}
+
+// Update hearts display
+function updateHeartsDisplay() {
+    if (GameState.gameMode !== 'buckshot') return;
+    
+    const heartA1 = document.getElementById('heartA1');
+    const heartA2 = document.getElementById('heartA2');
+    const heartB1 = document.getElementById('heartB1');
+    const heartB2 = document.getElementById('heartB2');
+    
+    if (heartA1 && heartA2) {
+        heartA1.className = 'heart ' + (GameState.playerAHealth >= 1 ? 'filled' : 'empty');
+        heartA2.className = 'heart ' + (GameState.playerAHealth >= 2 ? 'filled' : 'empty');
+    }
+    
+    if (heartB1 && heartB2) {
+        heartB1.className = 'heart ' + (GameState.playerBHealth >= 1 ? 'filled' : 'empty');
+        heartB2.className = 'heart ' + (GameState.playerBHealth >= 2 ? 'filled' : 'empty');
+    }
+    
+    console.log('[Hearts] A:', GameState.playerAHealth, 'B:', GameState.playerBHealth);
+}
+
+// Update bullets breakdown
+function updateBulletsBreakdown() {
+    if (GameState.gameMode !== 'buckshot' || !GameState.sharedRevolver) return;
+    
+    const liveBulletsCount = document.getElementById('liveBulletsCount');
+    const blankBulletsCount = document.getElementById('blankBulletsCount');
+    
+    if (!liveBulletsCount || !blankBulletsCount) return;
+    
+    let liveRemaining = 0;
+    let blankRemaining = 0;
+    
+    for (let i = GameState.sharedRevolver.currentChamber; i < 6; i++) {
+        if (GameState.sharedRevolver.chambers[i]) {
+            liveRemaining++;
+        } else {
+            blankRemaining++;
+        }
+    }
+    
+    liveBulletsCount.textContent = liveRemaining;
+    blankBulletsCount.textContent = blankRemaining;
+    
+    console.log('[Bullets] Live:', liveRemaining, 'Blank:', blankRemaining);
+}
+
+// Heal player (Buckshot only)
+function healPlayer(player) {
+    const isPlayerA = player === GameState.playerA;
+    const currentHealth = isPlayerA ? GameState.playerAHealth : GameState.playerBHealth;
+    
+    if (currentHealth >= 2) {
+        logMessage(`❌ ${player}: أنت بصحة كاملة!`, 'danger');
+        return;
+    }
+    
+    if (isPlayerA) {
+        GameState.playerAHealth++;
+    } else {
+        GameState.playerBHealth++;
+    }
+    
+    updateHeartsDisplay();
+    showDramaticOverlay('💊', `${player} استعاد قلباً!`);
+    logMessage(`💊 ${player} استخدم العلاج - استعادة قلب! ❤️`, 'success');
 }
