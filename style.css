@@ -68,6 +68,9 @@ body::before {
 
 .screen.active {
     display: flex;
+    flex-direction: column;
+    justify-content: center; /* ← هذا السطر هو الأهم */
+    align-items: center;
 }
 
 @keyframes fadeIn {
