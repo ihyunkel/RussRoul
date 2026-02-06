@@ -18,6 +18,8 @@ const GameState = {
     // Current match
     playerA: null,
     playerB: null,
+    playerAAvatar: null,
+    playerBAvatar: null,
     currentTurn: null, // 'A' or 'B'
     revolverA: null, // { chambers: [false, false, false, false, false, true], currentChamber: 0 }
     revolverB: null,
@@ -65,6 +67,8 @@ const UI = {
     playerBName: document.getElementById('playerBName'),
     playerAInitial: document.getElementById('playerAInitial'),
     playerBInitial: document.getElementById('playerBInitial'),
+    playerAAvatar: document.getElementById('playerAAvatar'),
+    playerBAvatar: document.getElementById('playerBAvatar'),
     chambersA: document.getElementById('chambersA'),
     chambersB: document.getElementById('chambersB'),
     turnA: document.getElementById('turnA'),
@@ -207,7 +211,7 @@ function handleChatMessage(channel, tags, message, self) {
     
     // Join command
     if (messageLower === '!join' || messageLower === 'join') {
-        handleJoinCommand(username);
+        handleJoinCommand(username, tags['user-id']);
         return;
     }
     
@@ -223,6 +227,31 @@ function handleChatMessage(channel, tags, message, self) {
             }
         }
     }
+}
+
+// Fetch Twitch user profile picture
+async function fetchUserAvatar(username) {
+    try {
+        const token = AuthManager.getToken();
+        if (!token) return null;
+        
+        const response = await fetch(`https://api.twitch.tv/helix/users?login=${username}`, {
+            headers: {
+                'Client-ID': window.TWITCH_CLIENT_ID || 'YOUR_CLIENT_ID_HERE',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) return null;
+        
+        const data = await response.json();
+        if (data.data && data.data.length > 0) {
+            return data.data[0].profile_image_url;
+        }
+    } catch (error) {
+        console.log('[Avatar] Failed to fetch avatar for', username, error);
+    }
+    return null;
 }
 
 // ============================================================
@@ -245,7 +274,7 @@ function toggleJoinStatus() {
     updateStartButton();
 }
 
-function handleJoinCommand(username) {
+function handleJoinCommand(username, userId) {
     if (!GameState.joinOpen) return;
     
     if (GameState.players.has(username)) {
@@ -485,6 +514,9 @@ function initializeMatch() {
     // Random starting player
     GameState.currentTurn = Math.random() < 0.5 ? 'A' : 'B';
     
+    // Fetch avatars
+    fetchAndSetAvatars();
+    
     // Update UI
     showState('match');
     updateMatchDisplay();
@@ -496,6 +528,37 @@ function initializeMatch() {
     
     // Start turn
     startTurn();
+}
+
+// Fetch and set player avatars
+async function fetchAndSetAvatars() {
+    if (GameState.playerA) {
+        const avatarA = await fetchUserAvatar(GameState.playerA);
+        if (avatarA) {
+            GameState.playerAAvatar = avatarA;
+            UI.playerAAvatar.src = avatarA;
+            UI.playerAAvatar.style.display = 'block';
+            UI.playerAInitial.style.display = 'none';
+        } else {
+            UI.playerAAvatar.style.display = 'none';
+            UI.playerAInitial.style.display = 'block';
+            UI.playerAInitial.textContent = GameState.playerA[0].toUpperCase();
+        }
+    }
+    
+    if (GameState.playerB) {
+        const avatarB = await fetchUserAvatar(GameState.playerB);
+        if (avatarB) {
+            GameState.playerBAvatar = avatarB;
+            UI.playerBAvatar.src = avatarB;
+            UI.playerBAvatar.style.display = 'block';
+            UI.playerBInitial.style.display = 'none';
+        } else {
+            UI.playerBAvatar.style.display = 'none';
+            UI.playerBInitial.style.display = 'block';
+            UI.playerBInitial.textContent = GameState.playerB[0].toUpperCase();
+        }
+    }
 }
 
 function createRevolver() {
