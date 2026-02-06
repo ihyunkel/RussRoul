@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>روليت روسية - بطولة تويتش</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="revolver-logo">
+                <svg viewBox="0 0 100 100" class="rotating-chamber">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="50" cy="20" r="4" fill="currentColor"/>
+                    <circle cx="76" cy="35" r="4" fill="currentColor"/>
+                    <circle cx="76" cy="65" r="4" fill="currentColor"/>
+                    <circle cx="50" cy="80" r="4" fill="currentColor"/>
+                    <circle cx="24" cy="65" r="4" fill="currentColor"/>
+                    <circle cx="24" cy="35" r="4" fill="currentColor"/>
+                    <circle cx="50" cy="50" r="8" fill="currentColor"/>
+                </svg>
+            </div>
+            <h1 class="game-title">الروليت الروسية</h1>
+            <p class="game-subtitle">بطولة تويتش - من يبقى على قيد الحياة</p>
+            <button id="loginBtn" class="primary-btn">
+                <span class="btn-icon">🎮</span>
+                <span>تسجيل الدخول بحساب تويتش</span>
+            </button>
+            <div class="login-info">
+                <p>• يجب أن تكون مذيعًا لبدء اللعبة</p>
+                <p>• المشاهدون يشاركون عبر الدردشة</p>
+                <p>• لا نحفظ أي بيانات - كل شيء محلي</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Dashboard -->
+    <div id="gameScreen" class="screen">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="channel-info">
+                <div class="live-indicator"></div>
+                <span id="channelName">جاري التحميل...</span>
+            </div>
+            <button id="logoutBtn" class="icon-btn">
+                <span>تسجيل الخروج</span>
+            </button>
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="game-container">
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <div class="tournament-status">
+                    <h2>حالة البطولة</h2>
+                    <div class="status-item">
+                        <span class="label">الجولة:</span>
+                        <span id="roundNumber" class="value">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">اللاعبون المتبقون:</span>
+                        <span id="remainingPlayers" class="value">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">المباراة الحالية:</span>
+                        <span id="currentMatch" class="value">-</span>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="toggleJoinBtn" class="control-btn" disabled>
+                        <span class="status-dot"></span>
+                        فتح التسجيل
+                    </button>
+                    <button id="startTournamentBtn" class="control-btn" disabled>
+                        ⚔️ بدء البطولة
+                    </button>
+                    <button id="resetBtn" class="control-btn danger">
+                        🔄 إعادة تعيين
+                    </button>
+                </div>
+
+                <div class="players-list">
+                    <h3>اللاعبون المسجلون (<span id="playerCount">0</span>)</h3>
+                    <div id="playersList" class="scrollable-list"></div>
+                </div>
+            </div>
+
+            <!-- Center Arena -->
+            <div class="center-arena">
+                <div id="waitingState" class="state-container active">
+                    <div class="waiting-icon">🎯</div>
+                    <h2>في انتظار اللاعبين</h2>
+                    <p>افتح التسجيل ليبدأ المشاهدون بالانضمام</p>
+                    <div class="command-hint">
+                        <code>!join</code> للانضمام في الدردشة
+                    </div>
+                </div>
+
+                <div id="matchState" class="state-container">
+                    <div class="versus-container">
+                        <!-- Player A -->
+                        <div class="player-side" id="playerAContainer">
+                            <div class="player-avatar">
+                                <div class="avatar-circle">
+                                    <span id="playerAInitial">A</span>
+                                </div>
+                            </div>
+                            <h3 id="playerAName" class="player-name">لاعب أ</h3>
+                            <div class="revolver-display">
+                                <div class="chambers" id="chambersA">
+                                    <div class="chamber"></div>
+                                    <div class="chamber"></div>
+                                    <div class="chamber"></div>
+                                    <div class="chamber"></div>
+                                    <div class="chamber"></div>
+                                    <div class="chamber"></div>
+                                </div>
+                                <div class="revolver-icon">🔫</div>
+                            </div>
+                            <div class="turn-indicator" id="turnA">دورك</div>
+                        </div>
+
+                        <!-- VS Badge -->
+                        <div class="vs-badge">
+                            <div class="vs-text">VS</div>
+                            <div class="round-label" id="matchRound">الجولة 1</div>
+                        </div>
+
+                        <!-- Player B -->
+                        <div class="player-side" id="playerBContainer">
+                            <div class="player-avatar">
+                                <div class="avatar-circle">
+                                    <span id="playerBInitial">B</span>
+                                </div>
+                            </div>
+                            <h3 id="playerBName" class="player-name">لاعب ب</h3>
+                            <div class="revolver-display">
+                                <div class="chambers" id="chambersB">
+                                    <div class="chamber"></div>
+                                    <div class="chamber"></div>
+                                    <div class="chamber"></div>
+                                    <div class="chamber"></div>
+                                    <div class="chamber"></div>
+                                    <div class="chamber"></div>
+                                </div>
+                                <div class="revolver-icon">🔫</div>
+                            </div>
+                            <div class="turn-indicator" id="turnB">دورك</div>
+                        </div>
+                    </div>
+
+                    <!-- Countdown Timer -->
+                    <div class="countdown-container" id="countdownContainer">
+                        <div class="countdown-ring">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" class="countdown-bg"/>
+                                <circle cx="50" cy="50" r="45" class="countdown-progress" id="countdownCircle"/>
+                            </svg>
+                            <div class="countdown-text">
+                                <span id="countdownNumber">30</span>
+                            </div>
+                        </div>
+                        <p class="countdown-label">ثانية متبقية</p>
+                    </div>
+
+                    <!-- Action Commands -->
+                    <div class="action-hints">
+                        <div class="hint-item">
+                            <code>!shoot self</code>
+                            <span>أطلق على نفسك</span>
+                        </div>
+                        <div class="hint-item">
+                            <code>!shoot opponent</code>
+                            <span>أطلق على الخصم</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="resultState" class="state-container">
+                    <div class="result-content">
+                        <div class="result-icon" id="resultIcon">💀</div>
+                        <h2 id="resultTitle">انتهت المباراة</h2>
+                        <p id="resultMessage">اللاعب أ فاز!</p>
+                        <div class="result-animation" id="resultAnimation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel (Tournament Bracket) -->
+            <div class="right-panel">
+                <h2>شجرة البطولة</h2>
+                <div id="bracketDisplay" class="bracket-container">
+                    <p class="empty-state">ابدأ البطولة لعرض الشجرة</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Panel -->
+        <div class="log-panel">
+            <div class="log-header">
+                <h3>سجل الأحداث</h3>
+                <button id="clearLogBtn" class="icon-btn small">🗑️</button>
+            </div>
+            <div id="gameLog" class="log-content"></div>
+        </div>
+    </div>
+
+    <!-- Dramatic Overlay -->
+    <div id="dramaticOverlay" class="dramatic-overlay">
+        <div class="overlay-content">
+            <div class="dramatic-icon" id="dramaticIcon"></div>
+            <p class="dramatic-text" id="dramaticText"></p>
+        </div>
+    </div>
+
+    <!-- Screen Flash Effect -->
+    <div id="screenFlash" class="screen-flash"></div>
+
+    <!-- Audio Elements -->
+    <audio id="spinSound" preload="auto">
+        <source src="sounds/spin.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="clickSound" preload="auto">
+        <source src="sounds/click.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="shotSound" preload="auto">
+        <source src="sounds/shot.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="deathSound" preload="auto">
+        <source src="sounds/death.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="tensionSound" preload="auto" loop>
+        <source src="sounds/tension.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="tmi.min.js"></script>
+    <script src="auth.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
