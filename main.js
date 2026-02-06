@@ -27,8 +27,8 @@ const GameState = {
     
     // Power-ups (للطور المطور)
     gameMode: 'classic', // 'classic' or 'advanced'
-    playerAPowerups: { shield: 3, swap: 3, reveal: 3 },
-    playerBPowerups: { shield: 3, swap: 3, reveal: 3 },
+    playerAPowerups: { shield: 1, swap: 1, reveal: 1 },
+    playerBPowerups: { shield: 1, swap: 1, reveal: 1 },
     playerAShieldActive: false,
     playerBShieldActive: false,
     
@@ -593,6 +593,7 @@ function endTournament() {
 // ============================================================
 
 function initializeMatch() {
+    console.log('[Match] ========== INITIALIZING MATCH ==========');
     GameState.phase = 'match';
     
     // Initialize shared revolver (currently using old system)
@@ -601,10 +602,12 @@ function initializeMatch() {
     
     // Random starting player
     GameState.currentTurn = Math.random() < 0.5 ? 'A' : 'B';
+    const startingPlayer = GameState.currentTurn === 'A' ? GameState.playerA : GameState.playerB;
     
-    console.log('[Match] Initialized. Turn:', GameState.currentTurn);
     console.log('[Match] Player A:', GameState.playerA);
     console.log('[Match] Player B:', GameState.playerB);
+    console.log('[Match] Starting turn:', GameState.currentTurn);
+    console.log('[Match] Starting player:', startingPlayer);
     
     // Fetch avatars
     fetchAndSetAvatars();
@@ -615,14 +618,20 @@ function initializeMatch() {
     updateTournamentStatus();
     displayBracket();
     
+    // Log message about starting player
+    logMessage(`⚔️ المباراة بدأت! الدور الأول: ${startingPlayer}`, 'success');
+    
     // Play spin sound
     playSound('spin');
     
-    // IMPORTANT: Start the turn timer
+    // IMPORTANT: Ensure turn starts after UI is ready
     setTimeout(() => {
-        console.log('[Match] Starting turn for:', GameState.currentTurn);
+        console.log('[Match] ========== STARTING FIRST TURN ==========');
+        console.log('[Match] Current turn before start:', GameState.currentTurn);
+        updateActivePlayer(); // Make sure active player is shown
         startTurn();
-    }, 1000);
+        console.log('[Match] ========== TURN STARTED ==========');
+    }, 1500);
 }
 
 // Fetch and set player avatars
@@ -668,11 +677,21 @@ function createRevolver() {
 }
 
 function updateMatchDisplay() {
+    console.log('[Match Display] Updating match display...');
+    
+    // Validate elements exist
+    if (!UI.playerAName || !UI.playerBName) {
+        console.error('[Match Display] ERROR: Player name elements not found!');
+        return;
+    }
+    
     // Names
     UI.playerAName.textContent = GameState.playerA;
     UI.playerBName.textContent = GameState.playerB;
     UI.playerAInitial.textContent = GameState.playerA[0].toUpperCase();
     UI.playerBInitial.textContent = GameState.playerB[0].toUpperCase();
+    
+    console.log('[Match Display] Names set - A:', GameState.playerA, 'B:', GameState.playerB);
     
     // Round label
     UI.matchRound.textContent = `الجولة ${GameState.currentRound}`;
@@ -681,9 +700,10 @@ function updateMatchDisplay() {
     updateChambers();
     
     // Active player - IMPORTANT: Show who's turn it is
+    console.log('[Match Display] About to update active player...');
     updateActivePlayer();
     
-    console.log('[Match] Display updated. Active player:', GameState.currentTurn);
+    console.log('[Match Display] Display updated. Active player:', GameState.currentTurn);
 }
 
 function updateChambers() {
@@ -708,50 +728,74 @@ function updateChambers() {
 }
 
 function updateActivePlayer() {
+    console.log('[Active] Updating active player. Current turn:', GameState.currentTurn);
+    
     if (GameState.currentTurn === 'A') {
+        console.log('[Active] Setting Player A as active');
         UI.playerAContainer.classList.add('active');
         UI.playerBContainer.classList.remove('active');
-    } else {
+        console.log('[Active] Player A classes:', UI.playerAContainer.className);
+        console.log('[Active] Player B classes:', UI.playerBContainer.className);
+    } else if (GameState.currentTurn === 'B') {
+        console.log('[Active] Setting Player B as active');
         UI.playerBContainer.classList.add('active');
         UI.playerAContainer.classList.remove('active');
+        console.log('[Active] Player A classes:', UI.playerAContainer.className);
+        console.log('[Active] Player B classes:', UI.playerBContainer.className);
+    } else {
+        console.error('[Active] ERROR: Invalid current turn:', GameState.currentTurn);
     }
 }
 
 function startTurn() {
+    console.log('[Turn] ========== START TURN FUNCTION ==========');
+    console.log('[Turn] Current turn:', GameState.currentTurn);
+    console.log('[Turn] Phase:', GameState.phase);
+    
+    // Force update active player visual
+    updateActivePlayer();
+    
     GameState.turnTimeRemaining = 30;
     
-    console.log('[Turn] Starting turn. Current turn:', GameState.currentTurn);
-    console.log('[Turn] Timer starting at:', GameState.turnTimeRemaining);
+    console.log('[Turn] Timer set to:', GameState.turnTimeRemaining);
     
     // Update countdown display immediately
     updateCountdown();
+    console.log('[Turn] Countdown updated on UI');
     
     // Clear any existing timer
     if (GameState.turnTimer) {
+        console.log('[Turn] Clearing existing timer:', GameState.turnTimer);
         clearInterval(GameState.turnTimer);
         GameState.turnTimer = null;
     }
     
     // Start new timer
+    console.log('[Turn] Creating new interval...');
     GameState.turnTimer = setInterval(() => {
         GameState.turnTimeRemaining--;
-        console.log('[Turn] Time remaining:', GameState.turnTimeRemaining);
+        console.log('[Turn] ⏰ Time remaining:', GameState.turnTimeRemaining);
         updateCountdown();
         
         if (GameState.turnTimeRemaining <= 0) {
+            console.log('[Turn] TIME UP!');
             clearInterval(GameState.turnTimer);
             GameState.turnTimer = null;
             logMessage('⏰ انتهى الوقت - الجبان يطلق على نفسه!', 'warning');
             setTimeout(() => handleShootCommand('self'), 1000);
-        } else if (GameState.turnTimeRemaining <= 10) {
-            // Play tension sound in last 10 seconds
-            if (GameState.turnTimeRemaining === 10) {
-                playSound('tension');
-            }
+        } else if (GameState.turnTimeRemaining === 10) {
+            // Play tension sound at exactly 10 seconds
+            console.log('[Turn] Playing tension sound');
+            playSound('tension');
         }
     }, 1000);
     
-    console.log('[Turn] Timer started:', GameState.turnTimer);
+    console.log('[Turn] Timer created with ID:', GameState.turnTimer);
+    console.log('[Turn] ========== TURN STARTED SUCCESSFULLY ==========');
+    
+    // Log to UI
+    const currentPlayerName = GameState.currentTurn === 'A' ? GameState.playerA : GameState.playerB;
+    logMessage(`▶️ دور: ${currentPlayerName} - لديك 30 ثانية`, 'info');
 }
 
 function updateCountdown() {
