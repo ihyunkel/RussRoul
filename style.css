@@ -67,10 +67,9 @@ body::before {
     overflow-y: auto;
 }
 
-.screen.active > * {
+.screen.active {
     display: flex;
     overflow-y: auto;
-    direction: rtl;
 }
 
 @keyframes fadeIn {
@@ -300,17 +299,17 @@ body::before {
 }
 
 .left-panel::-webkit-scrollbar {
-    width: 6px;
+    width: 2px;
 }
 
 .left-panel::-webkit-scrollbar-track {
-    background: var(--color-bg-light);
-    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
 }
 
 .left-panel::-webkit-scrollbar-thumb {
     background: var(--color-accent);
-    border-radius: 3px;
+    border-radius: 2px;
 }
 
 .tournament-status h2,
