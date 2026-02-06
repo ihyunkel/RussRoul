@@ -742,6 +742,70 @@ body::before {
     box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
 }
 
+/* Hearts Display for Buckshot Mode */
+.hearts-display {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.heart {
+    filter: drop-shadow(0 0 5px rgba(255, 59, 59, 0.8));
+    transition: all 0.3s ease;
+}
+
+.heart.filled {
+    animation: heartbeat 1.5s ease infinite;
+}
+
+.heart.empty {
+    opacity: 0.3;
+    filter: grayscale(100%);
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Bullet Breakdown for Buckshot Mode */
+.bullets-breakdown {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.bullet-type {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.bullet-type.live {
+    color: var(--color-accent);
+}
+
+.bullet-type.blank {
+    color: var(--color-text-dim);
+}
+
+.bullet-icon {
+    font-size: 1.3rem;
+}
+
+.bullet-label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
 .player-side.active .turn-indicator {
     opacity: 1;
     transform: scale(1);
