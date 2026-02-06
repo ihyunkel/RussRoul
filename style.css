@@ -80,7 +80,7 @@ body::before {
 #loginScreen {
     align-items: center;
     justify-content: center;
-    padding: 4rem;
+    padding: 10rem;
     position: relative;
     z-index: 2;
 }
