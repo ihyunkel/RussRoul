@@ -67,10 +67,10 @@ body::before {
     overflow-y: auto;
 }
 
-.screen.active {
+.screen.active > * {
+    direction: rtl;
     display: flex;
     overflow-y: auto;
-    direction: ltr;        /* يخلي السكرول يمين */
 }
 
 @keyframes fadeIn {
