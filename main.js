@@ -166,11 +166,37 @@ function setGameMode(mode) {
     if (mode === 'classic') {
         UI.classicModeBtn.classList.add('active');
         UI.advancedModeBtn.classList.remove('active');
+        
+        // Hide powerups
+        const powerupsA = document.getElementById('powerupsA');
+        const powerupsB = document.getElementById('powerupsB');
+        const powerupsHint = document.getElementById('powerupsHint');
+        
+        if (powerupsA) powerupsA.style.display = 'none';
+        if (powerupsB) powerupsB.style.display = 'none';
+        if (powerupsHint) powerupsHint.style.display = 'none';
+        
         logMessage('🎯 تم اختيار الطور الكلاسيكي', 'info');
     } else {
         UI.advancedModeBtn.classList.add('active');
         UI.classicModeBtn.classList.remove('active');
-        logMessage('⚡ تم اختيار الطور المطور', 'success');
+        
+        // Show powerups
+        const powerupsA = document.getElementById('powerupsA');
+        const powerupsB = document.getElementById('powerupsB');
+        const powerupsHint = document.getElementById('powerupsHint');
+        
+        if (powerupsA) powerupsA.style.display = 'flex';
+        if (powerupsB) powerupsB.style.display = 'flex';
+        if (powerupsHint) powerupsHint.style.display = 'block';
+        
+        // Reset powerups to 1 each
+        GameState.playerAPowerups = { shield: 1, swap: 1, reveal: 1 };
+        GameState.playerBPowerups = { shield: 1, swap: 1, reveal: 1 };
+        GameState.playerAShieldActive = false;
+        GameState.playerBShieldActive = false;
+        
+        logMessage('⚡ تم اختيار الطور المطور - كل لاعب لديه: 1 درع، 1 تبديل، 1 كشف', 'success');
     }
 }
 
@@ -179,10 +205,238 @@ function setGameMode(mode) {
 // ============================================================
 
 function usePowerup(player, type) {
-    // Placeholder for power-ups functionality
-    // Will be implemented fully later
-    logMessage(`⚠️ القوى الخاصة قيد التطوير - ${type}`, 'warning');
-    console.log('[Powerup] Used:', type, 'by', player);
+    console.log('[Powerup] Attempt to use:', type, 'by', player);
+    
+    // Fix 5: Check if it's player's turn
+    const currentPlayer = GameState.currentTurn === 'A' ? GameState.playerA : GameState.playerB;
+    if (player !== currentPlayer) {
+        logMessage(`❌ ${player}: ليس دورك! لا يمكنك استخدام القوى الخاصة`, 'danger');
+        return;
+    }
+    
+    // Get player's powerups
+    const isPlayerA = player === GameState.playerA;
+    const powerups = isPlayerA ? GameState.playerAPowerups : GameState.playerBPowerups;
+    
+    // Check if powerup is available
+    if (powerups[type] <= 0) {
+        logMessage(`❌ ${player}: لقد استخدمت ${getPowerupName(type)} بالفعل!`, 'danger');
+        return;
+    }
+    
+    // Use the powerup
+    powerups[type]--;
+    console.log('[Powerup] Used', type, '- Remaining:', powerups[type]);
+    
+    // Apply effect based on type
+    switch(type) {
+        case 'shield':
+            activateShield(player, isPlayerA);
+            break;
+        case 'swap':
+            swapBullet(player);
+            break;
+        case 'reveal':
+            revealBullet(player);
+            break;
+    }
+    
+    // Fix 3 & 4: Update visual display
+    updatePowerupsDisplay();
+}
+
+function getPowerupName(type) {
+    const names = {
+        shield: 'الدرع',
+        swap: 'التبديل',
+        reveal: 'الكشف'
+    };
+    return names[type] || type;
+}
+
+function activateShield(player, isPlayerA) {
+    console.log('[Shield] Activating shield for', player);
+    
+    if (isPlayerA) {
+        GameState.playerAShieldActive = true;
+    } else {
+        GameState.playerBShieldActive = true;
+    }
+    
+    // Show shield indicator
+    const shieldStatus = isPlayerA ? 
+        document.getElementById('shieldStatusA') : 
+        document.getElementById('shieldStatusB');
+    
+    if (shieldStatus) {
+        shieldStatus.style.display = 'block';
+    }
+    
+    showDramaticOverlay('🛡️', `${player} فعّل الدرع!`);
+    logMessage(`🛡️ ${player} استخدم الدرع - محمي من الطلقة القادمة!`, 'success');
+}
+
+function deactivateShield(player) {
+    const isPlayerA = player === GameState.playerA;
+    
+    console.log('[Shield] Deactivating shield for', player);
+    
+    if (isPlayerA) {
+        GameState.playerAShieldActive = false;
+    } else {
+        GameState.playerBShieldActive = false;
+    }
+    
+    // Hide shield indicator
+    const shieldStatus = isPlayerA ? 
+        document.getElementById('shieldStatusA') : 
+        document.getElementById('shieldStatusB');
+    
+    if (shieldStatus) {
+        shieldStatus.style.display = 'none';
+    }
+}
+
+function swapBullet(player) {
+    const currentChamber = GameState.sharedRevolver.currentChamber;
+    const isLive = GameState.sharedRevolver.chambers[currentChamber];
+    
+    // Swap the bullet state
+    GameState.sharedRevolver.chambers[currentChamber] = !isLive;
+    
+    console.log('[Swap] Bullet swapped. Was:', isLive, 'Now:', !isLive);
+    
+    const message = isLive ? 
+        'الطلقة كانت حية - أصبحت فارغة الآن!' : 
+        'الطلقة كانت فارغة - أصبحت حية الآن!';
+    
+    showDramaticOverlay('🔄', message);
+    logMessage(`🔄 ${player} استخدم التبديل - ${message}`, 'warning');
+}
+
+function revealBullet(player) {
+    const currentChamber = GameState.sharedRevolver.currentChamber;
+    const isLive = GameState.sharedRevolver.chambers[currentChamber];
+    
+    console.log('[Reveal] Revealing bullet. Is live:', isLive);
+    
+    const message = isLive ? 
+        '⚠️ الطلقة حية - خطر!' : 
+        '✅ الطلقة فارغة - آمنة!';
+    
+    const color = isLive ? 'danger' : 'success';
+    
+    showDramaticOverlay('👁️', message);
+    logMessage(`👁️ ${player} استخدم الكشف - ${message}`, color);
+    
+    // Briefly highlight current chamber
+    highlightCurrentChamber(isLive);
+}
+
+function highlightCurrentChamber(isLive) {
+    const currentChamber = GameState.sharedRevolver.currentChamber;
+    const chamberEl = document.querySelector(`.cylinder-chamber[data-chamber="${currentChamber}"]`);
+    
+    if (!chamberEl) return;
+    
+    // Add temporary highlight
+    const color = isLive ? '#ff3b3b' : '#2ecc71';
+    chamberEl.style.stroke = color;
+    chamberEl.style.strokeWidth = '3';
+    chamberEl.style.filter = `drop-shadow(0 0 12px ${color})`;
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        chamberEl.style.stroke = '';
+        chamberEl.style.strokeWidth = '';
+        chamberEl.style.filter = '';
+    }, 3000);
+}
+
+function updatePowerupsDisplay() {
+    // Update Player A powerups
+    const shieldA = document.getElementById('shieldCountA');
+    const swapA = document.getElementById('swapCountA');
+    const revealA = document.getElementById('revealCountA');
+    
+    if (shieldA) {
+        shieldA.textContent = GameState.playerAPowerups.shield;
+        const parent = shieldA.closest('.powerup-item');
+        if (parent) {
+            if (GameState.playerAPowerups.shield === 0) {
+                parent.classList.add('depleted');
+            } else {
+                parent.classList.remove('depleted');
+            }
+        }
+    }
+    
+    if (swapA) {
+        swapA.textContent = GameState.playerAPowerups.swap;
+        const parent = swapA.closest('.powerup-item');
+        if (parent) {
+            if (GameState.playerAPowerups.swap === 0) {
+                parent.classList.add('depleted');
+            } else {
+                parent.classList.remove('depleted');
+            }
+        }
+    }
+    
+    if (revealA) {
+        revealA.textContent = GameState.playerAPowerups.reveal;
+        const parent = revealA.closest('.powerup-item');
+        if (parent) {
+            if (GameState.playerAPowerups.reveal === 0) {
+                parent.classList.add('depleted');
+            } else {
+                parent.classList.remove('depleted');
+            }
+        }
+    }
+    
+    // Update Player B powerups
+    const shieldB = document.getElementById('shieldCountB');
+    const swapB = document.getElementById('swapCountB');
+    const revealB = document.getElementById('revealCountB');
+    
+    if (shieldB) {
+        shieldB.textContent = GameState.playerBPowerups.shield;
+        const parent = shieldB.closest('.powerup-item');
+        if (parent) {
+            if (GameState.playerBPowerups.shield === 0) {
+                parent.classList.add('depleted');
+            } else {
+                parent.classList.remove('depleted');
+            }
+        }
+    }
+    
+    if (swapB) {
+        swapB.textContent = GameState.playerBPowerups.swap;
+        const parent = swapB.closest('.powerup-item');
+        if (parent) {
+            if (GameState.playerBPowerups.swap === 0) {
+                parent.classList.add('depleted');
+            } else {
+                parent.classList.remove('depleted');
+            }
+        }
+    }
+    
+    if (revealB) {
+        revealB.textContent = GameState.playerBPowerups.reveal;
+        const parent = revealB.closest('.powerup-item');
+        if (parent) {
+            if (GameState.playerBPowerups.reveal === 0) {
+                parent.classList.add('depleted');
+            } else {
+                parent.classList.remove('depleted');
+            }
+        }
+    }
+    
+    console.log('[Powerups] Display updated');
 }
 
 // ============================================================
@@ -781,6 +1035,22 @@ function initializeMatch() {
     // Initialize SINGLE shared revolver
     GameState.sharedRevolver = createRevolver();
     
+    // Reset powerups for new match (if advanced mode)
+    if (GameState.gameMode === 'advanced') {
+        GameState.playerAPowerups = { shield: 1, swap: 1, reveal: 1 };
+        GameState.playerBPowerups = { shield: 1, swap: 1, reveal: 1 };
+        GameState.playerAShieldActive = false;
+        GameState.playerBShieldActive = false;
+        
+        // Hide shield indicators
+        const shieldA = document.getElementById('shieldStatusA');
+        const shieldB = document.getElementById('shieldStatusB');
+        if (shieldA) shieldA.style.display = 'none';
+        if (shieldB) shieldB.style.display = 'none';
+        
+        console.log('[Match] Advanced mode - powerups initialized');
+    }
+    
     // Random starting player
     GameState.currentTurn = Math.random() < 0.5 ? 'A' : 'B';
     const startingPlayer = GameState.currentTurn === 'A' ? GameState.playerA : GameState.playerB;
@@ -800,8 +1070,14 @@ function initializeMatch() {
     updateTournamentStatus();
     displayBracket();
     
+    // Update powerups display
+    if (GameState.gameMode === 'advanced') {
+        updatePowerupsDisplay();
+    }
+    
     // Log message about starting player
-    logMessage(`⚔️ المباراة بدأت! مسدس واحد - 6 طلقات - الدور الأول: ${startingPlayer}`, 'success');
+    const modeText = GameState.gameMode === 'advanced' ? ' - الطور المطور' : '';
+    logMessage(`⚔️ المباراة بدأت! مسدس واحد - 6 طلقات${modeText} - الدور الأول: ${startingPlayer}`, 'success');
     
     // SPIN THE CYLINDER with sound
     spinCylinder();
@@ -1000,11 +1276,8 @@ function startTurn() {
             GameState.turnTimer = null;
             logMessage('⏰ انتهى الوقت - الجبان يطلق على نفسه!', 'warning');
             setTimeout(() => handleShootCommand('self'), 1000);
-        } else if (GameState.turnTimeRemaining === 10) {
-            // Play tension sound at exactly 10 seconds
-            console.log('[Turn] Playing tension sound');
-            playSound('tension');
         }
+        // Removed tension sound from timer - only plays on shoot command
     }, 1000);
     
     console.log('[Turn] Timer created with ID:', GameState.turnTimer);
@@ -1103,13 +1376,37 @@ function handleShootCommand(target) {
             
             // After animations, handle click
             setTimeout(() => {
-                handleClick(shooterName);
+                handleClick(shooterName, target);
             }, 500);
         }
     }, 2000); // 2-second tension phase
 }
 
 function handleDeath(victim, shooter, target) {
+    // Fix 5: Check if victim has shield active
+    const victimIsPlayerA = victim === GameState.playerA;
+    const hasShield = victimIsPlayerA ? GameState.playerAShieldActive : GameState.playerBShieldActive;
+    
+    if (hasShield) {
+        console.log('[Death] Shield blocked the bullet!');
+        playSound('click'); // Different sound for shield
+        
+        // Deactivate shield
+        deactivateShield(victim);
+        
+        showDramaticOverlay('🛡️💥', `${victim} - الدرع حماك!`);
+        logMessage(`🛡️ ${victim} - الدرع امتص الطلقة وتحطم!`, 'success');
+        
+        // Continue game - switch turn normally (shield doesn't give bonus turn)
+        setTimeout(() => {
+            GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
+            updateActivePlayer();
+            startTurn();
+        }, 2000);
+        return;
+    }
+    
+    // No shield - regular death
     playSound('shot');
     screenFlash();
     
@@ -1128,9 +1425,7 @@ function handleDeath(victim, shooter, target) {
     }, 300);
 }
 
-function handleClick(shooter) {
-    logMessage(`✅ طلقة فارغة - دور ${shooter === GameState.playerA ? GameState.playerB : GameState.playerA}`, 'info');
-    
+function handleClick(shooter, target) {
     // Check if all chambers used - reload if needed
     if (GameState.sharedRevolver.currentChamber >= 6) {
         console.log('[Click] All chambers used - RELOADING');
@@ -1154,11 +1449,22 @@ function handleClick(shooter) {
         return;
     }
     
-    // Switch turn normally
-    GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
-    updateActivePlayer();
-    
-    setTimeout(() => startTurn(), 1000);
+    // BONUS TURN: If shot self with empty chamber, keep the turn!
+    if (target === 'self') {
+        console.log('[Click] Shot self with empty chamber - BONUS TURN!');
+        logMessage(`🎁 طلقة فارغة - ${shooter} يحصل على دور إضافي!`, 'success');
+        
+        // Keep same player's turn
+        setTimeout(() => startTurn(), 1000);
+    } else {
+        // Shot opponent with empty - switch turn normally
+        logMessage(`✅ طلقة فارغة - دور ${shooter === GameState.playerA ? GameState.playerB : GameState.playerA}`, 'info');
+        
+        GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
+        updateActivePlayer();
+        
+        setTimeout(() => startTurn(), 1000);
+    }
 }
 
 function endMatch(winner) {
