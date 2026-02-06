@@ -30,10 +30,12 @@ body {
     font-family: var(--font-display);
     background: linear-gradient(135deg, var(--color-bg-dark) 0%, #1a0a0f 100%);
     color: var(--color-text);
-    overflow-x: hidden;
-    position: relative;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
     height: 100vh;
-    overflow-y: auto;
 }
 
 body::before {
@@ -70,13 +72,16 @@ body::before {
 
 /* ===== LOGIN SCREEN ===== */
 #loginScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    width: 100%;
-    position: relative;
     z-index: 1;
+    overflow: hidden;
 }
 
 .login-container {
@@ -200,10 +205,15 @@ body::before {
 
 /* ===== GAME SCREEN ===== */
 #gameScreen {
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
     z-index: 1;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 /* Top Bar */
@@ -271,11 +281,11 @@ body::before {
 .game-container {
     display: grid;
     grid-template-columns: 300px 1fr 300px;
-    gap: 1.5rem;
-    padding: 1.5rem;
+    gap: 1rem;
+    padding: 1rem;
     flex: 1;
-    height: calc(100vh - 60px); /* Subtract top bar height */
-    overflow-y: auto;
+    overflow: hidden;
+    height: 100%;
 }
 
 /* Left Panel */
@@ -287,6 +297,22 @@ body::before {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.left-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.left-panel::-webkit-scrollbar-track {
+    background: var(--color-bg-light);
+    border-radius: 3px;
+}
+
+.left-panel::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: 3px;
 }
 
 .tournament-status h2,
@@ -460,13 +486,14 @@ body::before {
 .center-arena {
     background: var(--color-bg-medium);
     border-radius: 16px;
-    padding: 2rem;
+    padding: 1.5rem;
     box-shadow: var(--shadow-lg);
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 500px;
+    height: 100%;
+    overflow-y: auto;
 }
 
 .state-container {
@@ -930,6 +957,22 @@ body::before {
     border-radius: 16px;
     padding: 1.5rem;
     box-shadow: var(--shadow-md);
+    overflow-y: auto;
+    height: 100%;
+}
+
+.right-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.right-panel::-webkit-scrollbar-track {
+    background: var(--color-bg-light);
+    border-radius: 3px;
+}
+
+.right-panel::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: 3px;
 }
 
 .right-panel h2 {
