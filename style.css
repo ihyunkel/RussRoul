@@ -1536,3 +1536,18 @@ body::before {
     font-size: 0.85rem;
     opacity: 0.8;
 }
+
+/* Horizontal layout for timer and hints */
+.timer-hints-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.mode-instructions-box,
+.game-commands-box {
+    flex: 0 0 auto;
+}
