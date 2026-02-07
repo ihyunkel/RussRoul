@@ -1537,17 +1537,27 @@ body::before {
     opacity: 0.8;
 }
 
-/* Horizontal layout for timer and hints */
 .timer-hints-row {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: center;
-    gap: 2rem;
     margin-top: 2rem;
 }
 
-.mode-instructions-box,
+/* خلي المؤقت في العمود الأوسط */
+.timer-container {
+    grid-column: 2;
+    justify-self: center;
+}
+
+/* اليسار */
+.mode-instructions-box {
+    grid-column: 1;
+    justify-self: end;
+}
+
+/* اليمين */
 .game-commands-box {
-    flex: 0 0 auto;
+    grid-column: 3;
+    justify-self: start;
 }
