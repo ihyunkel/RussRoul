@@ -531,13 +531,10 @@ window.showGameState = function() {
 // REVOLVER CYLINDER ANIMATIONS
 // ============================================================
 
-function spinCylinder() {
-    const cylinder = document.getElementById('revolverCylinder');
-    if (!cylinder) return;
+// Reset all cylinder chamber visuals to default state
+function resetCylinderVisuals() {
+    console.log('[Cylinder] Resetting all chamber visuals to defaults');
     
-    console.log('[Cylinder] Starting spin animation - FULL RESET');
-    
-    // CRITICAL: Clear ALL chamber states from previous match
     for (let i = 0; i < 6; i++) {
         const chamberEl = document.querySelector(`.cylinder-chamber[data-chamber="${i}"]`);
         const indicatorEl = document.querySelector(`.chamber-indicator[data-chamber="${i}"]`);
@@ -567,14 +564,25 @@ function spinCylinder() {
         }
     }
     
-    console.log('[Cylinder] All chamber states cleared and reset to defaults');
+    // Reset cylinder rotation
+    const cylinder = document.getElementById('revolverCylinder');
+    if (cylinder) {
+        cylinder.dataset.rotation = '0';
+        cylinder.style.transform = 'rotate(0deg)';
+        cylinder.classList.remove('spinning', 'advancing', 'shake-click', 'shake-shot', 'flash');
+    }
     
-    // Remove any existing animations
-    cylinder.classList.remove('spinning', 'advancing', 'shake-click', 'shake-shot', 'flash');
+    console.log('[Cylinder] All chambers reset to default gray state');
+}
+
+function spinCylinder() {
+    const cylinder = document.getElementById('revolverCylinder');
+    if (!cylinder) return;
     
-    // Reset rotation
-    cylinder.dataset.rotation = '0';
-    cylinder.style.transform = 'rotate(0deg)';
+    console.log('[Cylinder] Starting spin animation - FULL RESET');
+    
+    // Reset all visuals first
+    resetCylinderVisuals();
     
     // Trigger spin
     void cylinder.offsetWidth; // Force reflow
@@ -1714,6 +1722,10 @@ function showState(state) {
     if (state === 'waiting') {
         UI.waitingState.classList.add('active');
         console.log('[UI] Activated waiting state');
+        
+        // Reset cylinder visuals when returning to waiting
+        resetCylinderVisuals();
+        
     } else if (state === 'match') {
         UI.matchState.classList.add('active');
         console.log('[UI] Activated match state');
@@ -1818,6 +1830,9 @@ function resetGame() {
     // Stop sounds
     UI.tensionSound.pause();
     UI.tensionSound.currentTime = 0;
+    
+    // CRITICAL: Reset cylinder chambers visually
+    resetCylinderVisuals();
     
     logMessage('🔄 تم إعادة تعيين اللعبة', 'info');
 }
