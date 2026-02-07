@@ -358,8 +358,8 @@ function swapBullet(player) {
     console.log('[Swap] Bullet swapped. Was:', isLive, 'Now:', !isLive);
     
     const message = isLive ? 
-        'الطلقة كانت حية - أصبحت فارغة الآن!' : 
-        'الطلقة كانت فارغة - أصبحت حية الآن!';
+        'تم تبديل الطلقة!' : 
+        'تم تبديل الطلقة!';
     
     showDramaticOverlay('🔄', message);
     logMessage(`🔄 ${player} استخدم التبديل - ${message}`, 'warning');
@@ -1502,6 +1502,10 @@ function handleShootCommand(target) {
             
             // Play shot sound FIRST
             playSound('shot');
+            
+            // Update visuals immediately
+            updateCylinderChambers();
+            updateChambers();
             
             // Update bullets for Buckshot
             if (GameState.gameMode === 'buckshot') updateBulletsBreakdown();
