@@ -535,10 +535,46 @@ function spinCylinder() {
     const cylinder = document.getElementById('revolverCylinder');
     if (!cylinder) return;
     
-    console.log('[Cylinder] Starting spin animation');
+    console.log('[Cylinder] Starting spin animation - FULL RESET');
+    
+    // CRITICAL: Clear ALL chamber states from previous match
+    for (let i = 0; i < 6; i++) {
+        const chamberEl = document.querySelector(`.cylinder-chamber[data-chamber="${i}"]`);
+        const indicatorEl = document.querySelector(`.chamber-indicator[data-chamber="${i}"]`);
+        
+        if (chamberEl) {
+            // Remove all classes
+            chamberEl.classList.remove('used', 'current');
+            
+            // Clear all inline styles
+            chamberEl.removeAttribute('style');
+            
+            // Reset to default attributes
+            chamberEl.setAttribute('stroke', '#9191a1');
+            chamberEl.setAttribute('opacity', '0.6');
+        }
+        
+        if (indicatorEl) {
+            // Remove all classes
+            indicatorEl.classList.remove('used', 'current');
+            
+            // Clear all inline styles
+            indicatorEl.removeAttribute('style');
+            
+            // Reset to default attributes
+            indicatorEl.setAttribute('fill', '#1c1c24');
+            indicatorEl.setAttribute('stroke', '#9191a1');
+        }
+    }
+    
+    console.log('[Cylinder] All chamber states cleared and reset to defaults');
     
     // Remove any existing animations
     cylinder.classList.remove('spinning', 'advancing', 'shake-click', 'shake-shot', 'flash');
+    
+    // Reset rotation
+    cylinder.dataset.rotation = '0';
+    cylinder.style.transform = 'rotate(0deg)';
     
     // Trigger spin
     void cylinder.offsetWidth; // Force reflow
@@ -1116,7 +1152,19 @@ function initializeMatch() {
     
     // Reset powerups for new match (if advanced mode)
     if (GameState.gameMode === 'advanced') {
-        GameState.playerAPowerups = { shield: 1, swap: 1, reveal: 1 }
+        GameState.playerAPowerups = { shield: 1, swap: 1, reveal: 1 };
+        GameState.playerBPowerups = { shield: 1, swap: 1, reveal: 1 };
+        GameState.playerAShieldActive = false;
+        GameState.playerBShieldActive = false;
+        
+        // Hide shield indicators
+        const shieldA = document.getElementById('shieldStatusA');
+        const shieldB = document.getElementById('shieldStatusB');
+        if (shieldA) shieldA.style.display = 'none';
+        if (shieldB) shieldB.style.display = 'none';
+        
+        console.log('[Match] Advanced mode - powerups initialized');
+    }
     
     // Reset for Buckshot mode
     if (GameState.gameMode === 'buckshot') {
@@ -1133,18 +1181,6 @@ function initializeMatch() {
         if (shieldB) shieldB.style.display = 'none';
         
         console.log('[Buckshot] Health and powerups reset');
-    };
-        GameState.playerBPowerups = { shield: 1, swap: 1, reveal: 1 };
-        GameState.playerAShieldActive = false;
-        GameState.playerBShieldActive = false;
-        
-        // Hide shield indicators
-        const shieldA = document.getElementById('shieldStatusA');
-        const shieldB = document.getElementById('shieldStatusB');
-        if (shieldA) shieldA.style.display = 'none';
-        if (shieldB) shieldB.style.display = 'none';
-        
-        console.log('[Match] Advanced mode - powerups initialized');
     }
     
     // Random starting player
