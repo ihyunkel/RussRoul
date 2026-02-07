@@ -1502,42 +1502,81 @@ function handleShootCommand(target) {
 }
 
 function handleDeath(victim, shooter, target) {
-    // Fix 5: Check if victim has shield active
     const victimIsPlayerA = victim === GameState.playerA;
     const hasShield = victimIsPlayerA ? GameState.playerAShieldActive : GameState.playerBShieldActive;
     
     if (hasShield) {
         console.log('[Death] Shield blocked the bullet!');
-        playSound('click'); // Different sound for shield
+        playSound('click');
         
-        // Deactivate shield
         deactivateShield(victim);
         
         showDramaticOverlay('🛡️💥', `${victim} - الدرع حماك!`);
         logMessage(`🛡️ ${victim} - الدرع امتص الطلقة وتحطم!`, 'success');
         
-        // Continue game - switch turn normally (shield doesn't give bonus turn)
         setTimeout(() => {
             GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
             updateActivePlayer();
+            if (GameState.gameMode === 'buckshot') {
+                updateBulletsBreakdown();
+            }
             startTurn();
         }, 2000);
         return;
     }
     
-    // No shield - regular death
+    // No shield - take damage
     playSound('shot');
     screenFlash();
     
     setTimeout(() => {
         playSound('death');
         
-        if (target === 'self') {
-            showDramaticOverlay('💀', `${victim} أطلق على نفسه!`);
+        // Buckshot mode: Health system
+        if (GameState.gameMode === 'buckshot') {
+            // Decrease health
+            if (victimIsPlayerA) {
+                GameState.playerAHealth--;
+            } else {
+                GameState.playerBHealth--;
+            }
+            
+            const currentHealth = victimIsPlayerA ? GameState.playerAHealth : GameState.playerBHealth;
+            console.log('[Buckshot] Health decreased for', victim, '- Remaining:', currentHealth);
+            
+            // Update hearts display
+            updateHeartsDisplay();
+            
+            // Check if still alive
+            if (currentHealth > 0) {
+                // Still alive - lost 1 heart but continues
+                showDramaticOverlay('💔', `${victim} خسر قلباً! ${currentHealth} قلب متبقي`);
+                logMessage(`💔 ${victim} أصيب! القلوب المتبقية: ${currentHealth}`, 'warning');
+                
+                // Continue game - switch turn
+                setTimeout(() => {
+                    GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
+                    updateActivePlayer();
+                    updateBulletsBreakdown();
+                    startTurn();
+                }, 2500);
+                return;
+            }
+            
+            // No hearts left - dead
+            showDramaticOverlay('💀', `${victim} مات! صفر قلوب`);
+            logMessage(`☠️ ${victim} خسر كل القلوب - مات!`, 'danger');
+            
         } else {
-            showDramaticOverlay('☠️', `${shooter} قتل ${victim}!`);
+            // Classic/Advanced mode: instant death
+            if (target === 'self') {
+                showDramaticOverlay('💀', `${victim} أطلق على نفسه!`);
+            } else {
+                showDramaticOverlay('☠️', `${shooter} قتل ${victim}!`);
+            }
         }
         
+        // End match after death
         setTimeout(() => {
             endMatch(target === 'self' ? (shooter === GameState.playerA ? GameState.playerB : GameState.playerA) : shooter === GameState.playerA ? GameState.playerA : GameState.playerB);
         }, 2000);
