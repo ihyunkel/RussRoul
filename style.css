@@ -971,6 +971,8 @@ body::before {
     position: relative;
     width: 150px;
     height: 150px;
+    padding: 20px;           /* 👈 مساحة للـ glow */
+    box-sizing: content-box; /* مهم */
 }
 
 .countdown-ring svg {
