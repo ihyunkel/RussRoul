@@ -1545,7 +1545,7 @@ body::before {
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     margin-top: 2rem;
-    column-gap: 4rem;
+    column-gap: 5rem;
 }
 
 /* خلي المؤقت في العمود الأوسط */
