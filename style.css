@@ -930,6 +930,11 @@ body::before {
     font-size: 0.95rem;
     color: var(--color-text-dim);
     font-weight: 600;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .bullet-count {
@@ -965,12 +970,14 @@ body::before {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+    overflow: visible;
 }
 
 .countdown-ring {
     position: relative;
     width: 180px;
     height: 180px;
+    overflow: visible;
 }
 
 .countdown-ring svg {
