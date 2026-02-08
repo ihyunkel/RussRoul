@@ -1223,8 +1223,24 @@ function initializeMatch() {
     }
     
     // Log message about starting player
-    const modeText = GameState.gameMode === 'advanced' ? ' - الطور المطور' : '';
+    const modeText = GameState.gameMode === 'advanced' ? ' - الطور المطور' : 
+                     GameState.gameMode === 'buckshot' ? ' - طور Buckshot' : '';
     logMessage(`⚔️ المباراة بدأت! مسدس واحد - 6 طلقات${modeText} - الدور الأول: ${startingPlayer}`, 'success');
+    
+    // Send match start info to Twitch chat
+    if (GameState.twitchClient && GameState.channel) {
+        let chatMessage = `⚔️ المباراة بدأت! ${GameState.playerA} vs ${GameState.playerB}`;
+        
+        if (GameState.gameMode === 'buckshot') {
+            const live = GameState.sharedRevolver.liveCount;
+            const blank = GameState.sharedRevolver.blankCount;
+            chatMessage += ` | طور Buckshot: 💥 ${live} حية + ⚪ ${blank} فارغة`;
+        }
+        
+        GameState.twitchClient.say(GameState.channel, chatMessage).catch(err => {
+            console.error('[Chat] Failed to send match start message:', err);
+        });
+    }
     
     // SPIN THE CYLINDER with sound
     spinCylinder();
@@ -1440,9 +1456,18 @@ function startTurn() {
     console.log('[Turn] Timer created with ID:', GameState.turnTimer);
     console.log('[Turn] ========== TURN STARTED SUCCESSFULLY ==========');
     
-    // Log to UI
+    // Log to UI and send to Twitch chat
     const currentPlayerName = GameState.currentTurn === 'A' ? GameState.playerA : GameState.playerB;
     logMessage(`▶️ دور: ${currentPlayerName} - لديك 30 ثانية`, 'info');
+    
+    // Send turn notification to Twitch chat
+    if (GameState.twitchClient && GameState.channel) {
+        const chatMessage = `▶️ الدور الآن: ${currentPlayerName} - لديك 30 ثانية للإطلاق`;
+        
+        GameState.twitchClient.say(GameState.channel, chatMessage).catch(err => {
+            console.error('[Chat] Failed to send turn message:', err);
+        });
+    }
 }
 
 function updateCountdown() {
@@ -1563,6 +1588,11 @@ function handleDeath(victim, shooter, target) {
         logMessage(`🛡️ ${victim} - الدرع امتص الطلقة وتحطم!`, 'success');
         
         setTimeout(() => {
+            // Check if reload needed before switching turn
+            if (GameState.sharedRevolver.currentChamber >= 6) {
+                reloadRevolver();
+            }
+            
             GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
             updateActivePlayer();
             if (GameState.gameMode === 'buckshot') {
@@ -1603,6 +1633,11 @@ function handleDeath(victim, shooter, target) {
                 
                 // Continue game - switch turn
                 setTimeout(() => {
+                    // Check if reload needed before switching turn
+                    if (GameState.sharedRevolver.currentChamber >= 6) {
+                        reloadRevolver();
+                    }
+                    
                     GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
                     updateActivePlayer();
                     updateBulletsBreakdown();
@@ -1631,32 +1666,46 @@ function handleDeath(victim, shooter, target) {
     }, 300);
 }
 
+// Reload revolver with new bullets
+function reloadRevolver() {
+    console.log('[Reload] Reloading revolver - all chambers used');
+    showDramaticOverlay('🔄', 'نفدت الطلقات! إعادة التعبئة...');
+    
+    // Spin cylinder with sound
+    spinCylinder();
+    
+    setTimeout(() => {
+        // Reload: create new revolver
+        GameState.sharedRevolver = createRevolver();
+        
+        // Use Buckshot revolver if in Buckshot mode
+        if (GameState.gameMode === 'buckshot') {
+            GameState.sharedRevolver = createBuckshotRevolver();
+            const live = GameState.sharedRevolver.liveCount;
+            const blank = GameState.sharedRevolver.blankCount;
+            logMessage(`🔄 إعادة التعبئة - ${live} حية + ${blank} فارغة!`, 'warning');
+            updateBulletsBreakdown();
+            
+            // Send to Twitch chat
+            if (GameState.twitchClient && GameState.channel) {
+                GameState.twitchClient.say(GameState.channel, 
+                    `🔄 إعادة تعبئة المسدس | 💥 ${live} طلقة حية + ⚪ ${blank} طلقة فارغة`
+                ).catch(err => console.error('[Chat] Failed to send reload message:', err));
+            }
+        }
+        updateCylinderChambers();
+        updateChambers();
+        logMessage('🔄 تم إعادة تعبئة المسدس - 6 طلقات جديدة!', 'warning');
+    }, 2500);
+}
+
 function handleClick(shooter, target) {
     // Check if all chambers used - reload if needed
     if (GameState.sharedRevolver.currentChamber >= 6) {
-        console.log('[Click] All chambers used - RELOADING');
-        showDramaticOverlay('🔄', 'نفدت الطلقات! إعادة التعبئة...');
+        reloadRevolver();
         
-        // Spin cylinder with sound
-        spinCylinder();
-        
+        // Switch turn and continue after reload
         setTimeout(() => {
-            // Reload: create new revolver
-            GameState.sharedRevolver = createRevolver();
-            
-            // Use Buckshot revolver if in Buckshot mode
-            if (GameState.gameMode === 'buckshot') {
-                GameState.sharedRevolver = createBuckshotRevolver();
-                const live = GameState.sharedRevolver.liveCount;
-                const blank = GameState.sharedRevolver.blankCount;
-                logMessage(`🔄 إعادة التعبئة - ${live} حية + ${blank} فارغة!`, 'warning');
-                updateBulletsBreakdown();
-            }
-            updateCylinderChambers();
-            updateChambers();
-            logMessage('🔄 تم إعادة تعبئة المسدس - 6 طلقات جديدة!', 'warning');
-            
-            // Switch turn and continue
             GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
             updateActivePlayer();
             setTimeout(() => startTurn(), 1000);
@@ -1946,6 +1995,7 @@ function healPlayer(player) {
     }
     
     updateHeartsDisplay();
+    updatePowerupsDisplay();  // Update visual display
     showDramaticOverlay('💊', `${player} استعاد قلباً!`);
     logMessage(`💊 ${player} استخدم العلاج - استعادة قلب! ❤️`, 'success');
 }
