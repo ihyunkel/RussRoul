@@ -56,6 +56,7 @@ const UI = {
     // Controls
     toggleJoinBtn: document.getElementById('toggleJoinBtn'),
     startTournamentBtn: document.getElementById('startTournamentBtn'),
+    skipTurnBtn: document.getElementById('skipTurnBtn'),
     resetBtn: document.getElementById('resetBtn'),
     
     // Game mode buttons
@@ -152,6 +153,7 @@ function setupEventListeners() {
     // Controls
     UI.toggleJoinBtn.addEventListener('click', toggleJoinStatus);
     UI.startTournamentBtn.addEventListener('click', startTournament);
+    UI.skipTurnBtn.addEventListener('click', handleSkipTurn);
     UI.resetBtn.addEventListener('click', resetGame);
     UI.clearLogBtn.addEventListener('click', clearLog);
     
@@ -1128,6 +1130,10 @@ function createNextRound() {
     
     if (winners.length <= 1) return; // Tournament over
     
+    // SHUFFLE winners to randomize BYE assignment
+    shuffleArray(winners);
+    console.log('[Bracket] Shuffled winners for next round:', winners);
+    
     GameState.currentRound++;
     const nextRound = [];
     
@@ -1139,11 +1145,13 @@ function createNextRound() {
                 winner: null
             });
         } else {
+            // Last player gets BYE (now random due to shuffle)
             nextRound.push({
                 playerA: winners[i],
                 playerB: 'BYE',
                 winner: winners[i]
             });
+            logMessage(`${winners[i]} يحصل على تأهل مباشر للجولة ${GameState.currentRound + 1}`, 'info');
         }
     }
     
@@ -1506,6 +1514,37 @@ function updateCountdown() {
     UI.countdownCircle.style.strokeDashoffset = circumference - progress;
 }
 
+function handleSkipTurn() {
+    if (!GameState.turnTimer) {
+        console.log('[Skip] ERROR: No active turn!');
+        return;
+    }
+    
+    const currentPlayer = GameState.currentTurn === 'A' ? GameState.playerA : GameState.playerB;
+    console.log('[Skip] Skipping turn for', currentPlayer);
+    
+    // Clear timer
+    clearInterval(GameState.turnTimer);
+    GameState.turnTimer = null;
+    
+    // Log message
+    logMessage(`⏭️ تم تخطي دور ${currentPlayer}`, 'warning');
+    
+    // Send to chat
+    if (GameState.twitchClient && GameState.channel) {
+        GameState.twitchClient.say(GameState.channel, 
+            `⏭️ تم تخطي دور ${currentPlayer}`
+        ).catch(err => console.error('[Chat] Failed to send skip message:', err));
+    }
+    
+    // Switch turn without using bullet
+    setTimeout(() => {
+        GameState.currentTurn = GameState.currentTurn === 'A' ? 'B' : 'A';
+        updateActivePlayer();
+        startTurn();
+    }, 1000);
+}
+
 function handleShootCommand(target) {
     if (!GameState.turnTimer) {
         console.log('[Shoot] ERROR: No active turn timer!');
@@ -1807,13 +1846,23 @@ function showState(state) {
         // Reset cylinder visuals when returning to waiting
         resetCylinderVisuals();
         
+        // Hide skip button
+        UI.skipTurnBtn.style.display = 'none';
+        
     } else if (state === 'match') {
         UI.matchState.classList.add('active');
         console.log('[UI] Activated match state');
         console.log('[UI] Match state classes:', UI.matchState.className);
+        
+        // Show skip button during match
+        UI.skipTurnBtn.style.display = 'block';
+        
     } else if (state === 'result') {
         UI.resultState.classList.add('active');
         console.log('[UI] Activated result state');
+        
+        // Hide skip button
+        UI.skipTurnBtn.style.display = 'none';
     }
     
     console.log('[UI] ========== STATE CHANGED ==========');
