@@ -446,6 +446,20 @@ function updatePowerupsDisplay() {
         }
     }
     
+    // Update heal for Player A (Buckshot mode)
+    const healA = document.getElementById('healCountA');
+    if (healA) {
+        healA.textContent = GameState.playerAPowerups.heal;
+        const parent = healA.closest('.powerup-item');
+        if (parent) {
+            if (GameState.playerAPowerups.heal === 0) {
+                parent.classList.add('depleted');
+            } else {
+                parent.classList.remove('depleted');
+            }
+        }
+    }
+    
     // Update Player B powerups
     const shieldB = document.getElementById('shieldCountB');
     const swapB = document.getElementById('swapCountB');
@@ -480,6 +494,20 @@ function updatePowerupsDisplay() {
         const parent = revealB.closest('.powerup-item');
         if (parent) {
             if (GameState.playerBPowerups.reveal === 0) {
+                parent.classList.add('depleted');
+            } else {
+                parent.classList.remove('depleted');
+            }
+        }
+    }
+    
+    // Update heal for Player B (Buckshot mode)
+    const healB = document.getElementById('healCountB');
+    if (healB) {
+        healB.textContent = GameState.playerBPowerups.heal;
+        const parent = healB.closest('.powerup-item');
+        if (parent) {
+            if (GameState.playerBPowerups.heal === 0) {
                 parent.classList.add('depleted');
             } else {
                 parent.classList.remove('depleted');
