@@ -808,6 +808,43 @@ async function connectToTwitch() {
     }
 }
 
+// Normalize Arabic text - handle spelling variations and spaces
+function normalizeArabic(text) {
+    return text
+        .trim()
+        .replace(/\s+/g, '') // Remove all spaces
+        .replace(/[أإآ]/g, 'ا') // Normalize alef variations
+        .replace(/ى/g, 'ي') // Normalize ya
+        .replace(/ة/g, 'ه') // Normalize taa marbouta
+        .toLowerCase();
+}
+
+// Check if message matches command (with normalization)
+function matchesCommand(message, ...commands) {
+    const normalized = normalizeArabic(message);
+    const messageLower = message.toLowerCase().trim();
+    
+    for (const cmd of commands) {
+        // Check exact match (lowercase)
+        if (messageLower === cmd.toLowerCase()) return true;
+        
+        // Check without exclamation mark
+        if (messageLower === cmd.toLowerCase().replace('!', '')) return true;
+        
+        // Check with space after exclamation
+        if (messageLower === cmd.toLowerCase().replace('!', '! ')) return true;
+        
+        // Check Arabic normalized
+        if (cmd.includes('ا') || cmd.includes('ي') || cmd.includes('ه')) {
+            const normalizedCmd = normalizeArabic(cmd);
+            if (normalized === normalizedCmd) return true;
+            if (normalized === normalizedCmd.replace('!', '')) return true;
+        }
+    }
+    
+    return false;
+}
+
 // Handle chat messages
 function handleChatMessage(channel, tags, message, self) {
     if (self) return; // Ignore own messages
@@ -818,10 +855,8 @@ function handleChatMessage(channel, tags, message, self) {
     
     console.log('[Chat] Message from', username, ':', messageClean); // Debug
     
-    // Join commands (Arabic & English) - check exact matches
-    if (messageLower === '!join' || messageLower === 'join' || 
-        messageClean === '!دخول' || messageClean === 'دخول' || 
-        messageClean === '!انضمام' || messageClean === 'انضمام') {
+    // Join commands (Arabic & English)
+    if (matchesCommand(messageClean, '!join', 'join', '!دخول', 'دخول', '!انضمام', 'انضمام')) {
         console.log('[Chat] Join command detected');
         handleJoinCommand(username, tags['user-id']);
         return;
@@ -835,19 +870,21 @@ function handleChatMessage(channel, tags, message, self) {
         
         if (username === currentPlayer) {
             // Shoot self commands (Arabic & English)
-            if (messageLower === '!shoot self' || messageLower === 'shoot self' ||
-                messageClean === '!اطلق نفسي' || messageClean === 'اطلق نفسي' ||
-                messageClean === '!اطلق_نفسي' || messageClean === 'اطلق_نفسي') {
+            if (matchesCommand(messageClean, 
+                '!shoot self', 'shoot self',
+                '!اطلق نفسي', 'اطلق نفسي', '!أطلق نفسي', 'أطلق نفسي', '!إطلق نفسي', 'إطلق نفسي',
+                '!اطلق_نفسي', 'اطلق_نفسي')) {
                 console.log('[Chat] Shoot self command');
                 handleShootCommand('self');
                 return;
             }
             
             // Shoot opponent commands (Arabic & English)
-            if (messageLower === '!shoot opponent' || messageLower === 'shoot opponent' ||
-                messageClean === '!اطلق عدوي' || messageClean === 'اطلق عدوي' ||
-                messageClean === '!اطلق_عدوي' || messageClean === 'اطلق_عدوي' ||
-                messageClean === '!اطلق خصمي' || messageClean === 'اطلق خصمي') {
+            if (matchesCommand(messageClean,
+                '!shoot opponent', 'shoot opponent',
+                '!اطلق عدوي', 'اطلق عدوي', '!أطلق عدوي', 'أطلق عدوي', '!إطلق عدوي', 'إطلق عدوي',
+                '!اطلق_عدوي', 'اطلق_عدوي',
+                '!اطلق خصمي', 'اطلق خصمي', '!أطلق خصمي', 'أطلق خصمي')) {
                 console.log('[Chat] Shoot opponent command');
                 handleShootCommand('opponent');
                 return;
@@ -856,28 +893,24 @@ function handleChatMessage(channel, tags, message, self) {
             // Power-up commands (Advanced and Buckshot modes)
             if (GameState.gameMode === 'advanced' || GameState.gameMode === 'buckshot') {
                 // Shield
-                if (messageLower === '!shield' || messageLower === 'shield' ||
-                    messageClean === '!درع' || messageClean === 'درع') {
+                if (matchesCommand(messageClean, '!shield', 'shield', '!درع', 'درع')) {
                     usePowerup(currentPlayer, 'shield');
                     return;
                 }
                 // Swap
-                if (messageLower === '!swap' || messageLower === 'swap' ||
-                    messageClean === '!تبديل' || messageClean === 'تبديل') {
+                if (matchesCommand(messageClean, '!swap', 'swap', '!تبديل', 'تبديل')) {
                     usePowerup(currentPlayer, 'swap');
                     return;
                 }
                 // Reveal
-                if (messageLower === '!reveal' || messageLower === 'reveal' ||
-                    messageClean === '!كشف' || messageClean === 'كشف') {
+                if (matchesCommand(messageClean, '!reveal', 'reveal', '!كشف', 'كشف')) {
                     usePowerup(currentPlayer, 'reveal');
                     return;
                 }
                 
                 // Heal (Buckshot mode only)
                 if (GameState.gameMode === 'buckshot') {
-                    if (messageLower === '!heal' || messageLower === 'heal' ||
-                        messageClean === '!علاج' || messageClean === 'علاج') {
+                    if (matchesCommand(messageClean, '!heal', 'heal', '!علاج', 'علاج')) {
                         usePowerup(currentPlayer, 'heal');
                         return;
                     }
